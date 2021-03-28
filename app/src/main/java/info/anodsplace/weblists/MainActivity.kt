@@ -10,16 +10,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.tooling.preview.Preview
 import info.anodsplace.weblists.ui.theme.WebListTheme
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -75,12 +77,19 @@ fun WebListContent(source: String, sections: List<WebSection>) {
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         stickyHeader {
-            Text(text = source,
+            TopAppBar(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colors.primary),
-                style = MaterialTheme.typography.h4,
-                textAlign = TextAlign.Center)
+                    .padding(horizontal = 8.dp, vertical = 8.dp)
+                    .clip(RoundedCornerShape(4.dp)),
+                title = { Text(text = source) },
+                navigationIcon = {
+                    Icon(
+                        modifier = Modifier.padding(start = 8.dp),
+                        imageVector = Icons.Filled.Menu,
+                        contentDescription = "Menu")
+                },
+                backgroundColor = MaterialTheme.colors.primary
+            )
         }
 
         for (section in sections) {
