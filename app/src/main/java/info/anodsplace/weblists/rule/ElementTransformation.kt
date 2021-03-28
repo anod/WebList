@@ -26,6 +26,10 @@ class TextTransformation: ElementTransformation {
     }
 }
 
+class ConstTransformation(val text: AnnotatedString): ElementTransformation {
+    override fun apply(element: Element): List<AnnotatedString> = listOf(text)
+}
+
 @Serializable
 data class StyleParameters @OptIn(ExperimentalUnsignedTypes::class) constructor(
     val color: ULong? = null,

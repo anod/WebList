@@ -9,6 +9,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import info.anodsplace.weblists.rule.WebSection
 
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
@@ -46,7 +48,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(state: ContentState) {
     when (state) {
         is ContentState.Loading -> LoadingContent()
-        is ContentState.Ready -> WebListContent(state.title, state.list)
+        is ContentState.Ready -> WebListContent(state.title, state.sections)
         is ContentState.Error -> ErrorContent(message = state.message)
     }
 }
@@ -54,7 +56,9 @@ fun MainScreen(state: ContentState) {
 @Composable
 fun LoadingContent() {
     Box(
-        modifier = Modifier.fillMaxHeight().fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator()
@@ -63,9 +67,11 @@ fun LoadingContent() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun WebListContent(source: String, list: List<AnnotatedString>) {
+fun WebListContent(source: String, sections: List<WebSection>) {
     LazyColumn(
-        modifier = Modifier.fillMaxHeight().fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         stickyHeader {
@@ -77,13 +83,32 @@ fun WebListContent(source: String, list: List<AnnotatedString>) {
                 textAlign = TextAlign.Center)
         }
 
-        items(list.size) { index ->
-            Text(
-                text = list[index],
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                style = MaterialTheme.typography.body1
-            )
+        for (section in sections) {
+            if (section.isHorizontal) {
+                item {
+                    LazyRow(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        items(section.list.size) { index ->
+                            Text(
+                                text = section.list[index],
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                style = MaterialTheme.typography.body1
+                            )
+                        }
+                    }
+                }
+            } else {
+                items(section.list.size) { index ->
+                    Text(
+                        text = section.list[index],
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        style = MaterialTheme.typography.body1
+                    )
+                }
+            }
         }
+
     }
 }
 
@@ -105,8 +130,8 @@ fun ErrorContent(message: String) {
 fun DefaultPreview() {
     WebListTheme {
         MainScreen(ContentState.Ready("Android", listOf(
-            AnnotatedString("Banana"),
-            AnnotatedString("Kiwi")
+            WebSection(true, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi"))),
+            WebSection(false, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi")))
         )))
     }
 }

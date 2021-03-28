@@ -1,6 +1,7 @@
 package info.anodsplace.weblists.rule
 
 import androidx.compose.ui.text.AnnotatedString
+import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
 class TransformationDefinition(
@@ -32,10 +33,11 @@ class TransformationDefinition(
     }
 }
 
-class Rule(
+class WebList(
     val id: Int,
     val cssQuery: String,
-    val transformations: List<TransformationDefinition>
+    val transformations: List<TransformationDefinition>,
+    val isHorizontal: Boolean = false
 ) {
     fun apply(elements: Elements): List<AnnotatedString> {
         val result = mutableListOf<AnnotatedString>()
@@ -56,9 +58,20 @@ class Rule(
     }
 }
 
-class WebRules(
+class WebSection(val isHorizontal: Boolean, val list: List<AnnotatedString>)
+
+class WebLists(
     val id: Int,
     val url: String,
     val title: String,
-    val rules: List<Rule>
-)
+    val lists: List<WebList>
+) {
+    fun apply(doc: Document): List<WebSection> {
+        val list = mutableListOf<WebSection>()
+        for (rule in lists) {
+            val elements = doc.select(rule.cssQuery)
+            list.add(WebSection(rule.isHorizontal, rule.apply(elements)))
+        }
+        return list
+    }
+}
