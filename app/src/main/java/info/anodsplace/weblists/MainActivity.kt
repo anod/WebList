@@ -95,9 +95,7 @@ fun WebListContent(source: String, sections: List<WebSection>) {
         for (section in sections) {
             if (section.isHorizontal) {
                 item {
-                    LazyRow(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
+                    LazyRow {
                         items(section.list.size) { index ->
                             Text(
                                 text = section.list[index],
@@ -142,13 +140,5 @@ fun DefaultPreview() {
             WebSection(true, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi"))),
             WebSection(false, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi")))
         )))
-    }
-}
-
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
-@Composable
-fun LoadingPreview() {
-    WebListTheme {
-        MainScreen(ContentState.Loading)
     }
 }
