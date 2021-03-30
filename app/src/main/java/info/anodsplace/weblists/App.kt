@@ -8,6 +8,7 @@ import org.koin.dsl.module
 
 val appModule = module {
     single { AppDatabase.create(get()) }
+    single { Preferences(get<Context>()) }
 }
 
 class App: Application() {

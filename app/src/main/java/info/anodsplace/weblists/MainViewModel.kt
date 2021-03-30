@@ -25,9 +25,10 @@ sealed class ContentState {
 }
 
 class MainViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
-    val sites = MutableStateFlow<ContentState>(ContentState.Loading)
-
     private val db: AppDatabase by inject()
+    val prefs: Preferences by inject()
+
+    val sites = MutableStateFlow<ContentState>(ContentState.Loading)
 
     fun loadSites() {
         viewModelScope.launch {
