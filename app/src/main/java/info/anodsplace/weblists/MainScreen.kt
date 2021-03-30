@@ -29,19 +29,22 @@ import info.anodsplace.weblists.rules.WebSite
 import info.anodsplace.weblists.ui.theme.WebListTheme
 
 sealed class Screens(val route: String) {
-    object Empty: Screens("empty") {
+    object Empty : Screens("empty") {
         val path = "empty"
     }
-    object Catalog: Screens("catalog") {
+
+    object Catalog : Screens("catalog") {
         val path = "catalog"
     }
-    class Site(val siteId: Long): Screens("site?siteId=$siteId") {
+
+    class Site(val siteId: Long) : Screens("site?siteId=$siteId") {
         companion object {
             val path = "site?siteId={siteId}"
             val arguments = listOf(navArgument("siteId") { type = NavType.LongType })
         }
     }
-    class Error(val message: String): Screens("error?message=$message") {
+
+    class Error(val message: String) : Screens("error?message=$message") {
         companion object {
             val path = "error?message={message}"
             val arguments = listOf(navArgument("message") {
@@ -85,37 +88,36 @@ fun MainScreen(viewModel: MainViewModel) {
                 }
                 is ContentState.SiteDefinition -> {
                     viewModel.prefs.lastSiteId = siteId
-                    val sectionsState = remember { viewModel.parseSections(siteValue.webSite) }.collectAsState(initial = ContentState.Loading)
-                    val title = siteValue.webSite.site.title
-                    when (val sectionsValue = sectionsState.value) {
-                        is ContentState.Loading -> LoadingSiteContent(title = title) {
-                            navController.navigate("catalog") {
-                                popUpTo = navController.graph.startDestination
-                                launchSingleTop = true
-                            }
+                    val title = siteValue.site.title
+                    LoadingSiteContent(title = title) {
+                        navController.navigate("catalog") {
+                            popUpTo = navController.graph.startDestination
+                            launchSingleTop = true
                         }
-                        is ContentState.SiteSections -> SiteContent(title, sectionsValue.sections) {
-                            navController.navigate("catalog") {
-                                popUpTo = navController.graph.startDestination
-                                launchSingleTop = true
-                            }
+                    }
+                }
+                is ContentState.SiteSections -> {
+                    val title = siteValue.site.title
+                    SiteContent(title, siteValue.sections) {
+                        navController.navigate("catalog") {
+                            popUpTo = navController.graph.startDestination
+                            launchSingleTop = true
                         }
-                        is ContentState.Error -> navController.navigate("error?message=${sectionsValue.message}")
                     }
                 }
                 is ContentState.Loading -> LoadingCatalog()
                 else -> navController.navigate("error?message=Unknown state $siteState")
-            }
-        }
-        composable(
-            Screens.Error.path,
-            arguments = Screens.Error.arguments
-        ) { backStackEntry ->
-            ErrorContent(
-                backStackEntry.arguments?.getString("message") ?: "Unexpected error"
-            )
         }
     }
+    composable(
+        Screens.Error.path,
+        arguments = Screens.Error.arguments
+    ) { backStackEntry ->
+        ErrorContent(
+            backStackEntry.arguments?.getString("message") ?: "Unexpected error"
+        )
+    }
+}
 }
 
 @Composable
