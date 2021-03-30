@@ -3,34 +3,50 @@ package info.anodsplace.weblists
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import info.anodsplace.weblists.rule.WebSection
-import info.anodsplace.weblists.rule.WebSiteStore
+import info.anodsplace.weblists.rules.WebSection
+import info.anodsplace.weblists.rules.WebSite
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 sealed class ContentState {
     object Loading: ContentState()
-    class Ready(val title: String, val sections: List<WebSection>): ContentState()
+    class Catalog(val sites: List<WebSite>): ContentState()
+    class Site(val title: String, val sections: List<WebSection>): ContentState()
+    object Empty: ContentState()
     class Error(val message: String): ContentState()
 }
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
-    private val _contentChanged: MutableStateFlow<ContentState> = MutableStateFlow(ContentState.Loading)
-    val contentChanged: Flow<ContentState> = _contentChanged
+class MainViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
+    val sites = MutableStateFlow<ContentState>(ContentState.Loading)
+    val site = MutableStateFlow<ContentState>(ContentState.Loading)
 
-    fun load() {
+    private val db: AppDatabase by inject()
+
+    fun loadSites() {
         viewModelScope.launch {
             try {
-                val webLists = WebSiteStore.load(0)
-                val doc = withContext(Dispatchers.IO) { Jsoup.connect(webLists.site.url).get() }
-                val sections = webLists.apply(doc)
-                _contentChanged.emit(ContentState.Ready(webLists.site.title, sections))
+                db.webSites().preload()
+                sites.emit(ContentState.Catalog(db.webSites().loadSites()))
             } catch (e: Exception) {
-                _contentChanged.emit(ContentState.Error(e.message ?: "Unexpected error"))
+                sites.emit(ContentState.Error(e.message ?: "Unexpected error"))
+            }
+        }
+    }
+
+    fun loadSite(siteId: Long) {
+        viewModelScope.launch {
+            try {
+                val webSite = db.webSites().loadById(siteId)
+                val doc = withContext(Dispatchers.IO) { Jsoup.connect(webSite.site.url).get() }
+                val sections = webSite.apply(doc)
+                site.emit(ContentState.Site(webSite.site.title, sections))
+            } catch (e: Exception) {
+                site.emit(ContentState.Error(e.message ?: "Unexpected error"))
             }
         }
     }
