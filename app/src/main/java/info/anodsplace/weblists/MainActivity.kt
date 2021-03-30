@@ -12,9 +12,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import info.anodsplace.weblists.ui.theme.WebListTheme
 import androidx.compose.ui.Alignment
@@ -47,7 +48,7 @@ class MainActivity : ComponentActivity() {
                             }
                             is ContentState.Loading -> {
                                 viewModel.loadSites()
-                                LoadingContent()
+                                LoadingCatalog()
                             }
                             else -> navController.navigate("error?message=Unknown state $c")
                         }
@@ -57,15 +58,31 @@ class MainActivity : ComponentActivity() {
                         arguments = listOf(navArgument("siteId") { type = NavType.LongType })
                     ) { backStackEntry ->
                         val siteId = backStackEntry.arguments?.getLong("siteId") ?: 0L
-                        val state = viewModel.site.collectAsState(initial = ContentState.Loading)
-                        when (val c = state.value) {
-                            is ContentState.Error -> navController.navigate("error?message=${c.message}")
-                            is ContentState.Site -> SiteContent(c.title, c.sections)
-                            is ContentState.Loading -> {
-                                viewModel.loadSite(siteId)
-                                LoadingContent()
+                        val siteState = remember { viewModel.loadSite(siteId) }
+                                .collectAsState(initial = ContentState.Loading)
+                        when (val siteValue = siteState.value) {
+                            is ContentState.Error -> navController.navigate("error?message=${siteValue.message}")
+                            is ContentState.SiteDefinition -> {
+                                val sectionsState = remember { viewModel.parseSections(siteValue.webSite) }.collectAsState(initial = ContentState.Loading)
+                                val title = siteValue.webSite.site.title
+                                when (val sectionsValue = sectionsState.value) {
+                                    is ContentState.Loading -> LoadingSiteContent(title = title) {
+                                        navController.navigate("catalog") {
+                                            popUpTo = navController.graph.startDestination
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                    is ContentState.SiteSections -> SiteContent(title, sectionsValue.sections) {
+                                        navController.navigate("catalog") {
+                                            popUpTo = navController.graph.startDestination
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                    is ContentState.Error -> navController.navigate("error?message=${sectionsValue.message}")
+                                }
                             }
-                            else -> navController.navigate("error?message=Unknown state $c")
+                            is ContentState.Loading -> LoadingCatalog()
+                            else -> navController.navigate("error?message=Unknown state $siteState")
                         }
                     }
                     composable(
@@ -87,6 +104,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainSurface(
     modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.Center,
     content: @Composable () -> Unit
 ) {
     Surface(color = MaterialTheme.colors.background) {
@@ -94,7 +112,7 @@ fun MainSurface(
             modifier = modifier
                 .fillMaxHeight()
                 .fillMaxWidth(),
-            contentAlignment = Alignment.Center
+            contentAlignment = contentAlignment
         ) {
             content()
         }
@@ -102,8 +120,25 @@ fun MainSurface(
 }
 
 @Composable
-fun LoadingContent() {
-    MainSurface { CircularProgressIndicator() }
+fun LoadingCatalog() {
+    MainSurface {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+fun LoadingSiteContent(title: String, navigateToCatalog: () -> Unit) {
+    MainSurface(
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier.fillMaxHeight().fillMaxWidth()
+        ) {
+            SiteTopBar(title, navigateToCatalog)
+        }
+        CircularProgressIndicator()
+
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -146,9 +181,25 @@ fun ListContent(sites: List<WebSite>, navigateToSite: (siteId: Long) -> Unit) {
     }
 }
 
+@Composable
+fun SiteTopBar(title: String, navigateToCatalog: () -> Unit) {
+    TopAppBar(
+        modifier = Modifier
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(4.dp)),
+        title = { Text(text = title) },
+        navigationIcon = {
+            IconButton(onClick = navigateToCatalog) {
+                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back to catalog")
+            }
+        },
+        backgroundColor = MaterialTheme.colors.primary,
+    )
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SiteContent(source: String, sections: List<WebSection>) {
+fun SiteContent(source: String, sections: List<WebSection>, navigateToCatalog: () -> Unit) {
     MainSurface {
         LazyColumn(
             modifier = Modifier
@@ -157,13 +208,7 @@ fun SiteContent(source: String, sections: List<WebSection>) {
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             stickyHeader {
-                TopAppBar(
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp, vertical = 8.dp)
-                        .clip(RoundedCornerShape(4.dp)),
-                    title = { Text(text = source) },
-                    backgroundColor = MaterialTheme.colors.primary
-                )
+                SiteTopBar(source, navigateToCatalog)
             }
 
             for (section in sections) {
@@ -247,7 +292,15 @@ fun DefaultPreview() {
                 WebSection(true, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi"))),
                 WebSection(false, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi")))
             )
-        )
+        ) { }
+    }
+}
+
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+fun LoadingSectionsPreview() {
+    WebListTheme {
+        LoadingSiteContent("Banana") { }
     }
 }
 

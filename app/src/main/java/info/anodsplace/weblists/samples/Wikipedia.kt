@@ -15,10 +15,31 @@ object Wikipedia {
                 order = 0,
                 cssQuery = "#mp-right",
                 transformations = listOf(
-                    CssTransformation(".mw-headline") {
+                    CssTransformation("#In_the_news") {
+                        StyleTransformation(SpanStyle(
+                            color = Teal200,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 4f.sp
+                        ))
+                    },
+                    CssTransformation("#mp-itn > ul li") {
                         TextTransformation()
                     },
-                    CssTransformation("ul li") {
+                )
+            ),
+            WebList(
+                siteId = siteId,
+                order = 0,
+                cssQuery = "#mp-right",
+                transformations = listOf(
+                    CssTransformation("#On_this_day") {
+                        StyleTransformation(SpanStyle(
+                            color = Teal200,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 4f.sp
+                        ))
+                    },
+                    CssTransformation("#mp-otd > ul li") {
                         TextTransformation()
                     },
                 )

@@ -27,7 +27,7 @@ interface WebSiteStore {
     suspend fun update(entity: WebList)
 
     @Query("DELETE FROM web_site")
-    abstract suspend fun deleteSites()
+    suspend fun deleteSites()
 
     @Transaction
     suspend fun insert(site: WebSite, lists: (siteId: Long) -> List<WebList>) {
