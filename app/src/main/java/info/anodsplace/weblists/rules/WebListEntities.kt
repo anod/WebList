@@ -61,7 +61,10 @@ data class WebList(
     }
 }
 
-class WebSection(val isHorizontal: Boolean, val list: List<AnnotatedString>)
+class WebSection(
+    val isHorizontal: Boolean,
+    val list: List<AnnotatedString>
+)
 
 data class WebSiteLists(
     @Embedded val site: WebSite,

@@ -28,6 +28,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
     val prefs: Preferences by inject()
 
     val sites = MutableStateFlow<ContentState>(ContentState.Loading)
+    var currentSections: ContentState.SiteSections? = null
 
     fun loadSites() {
         viewModelScope.launch {
@@ -41,16 +42,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
     }
 
     fun loadSite(siteId: Long): Flow<ContentState> = flow {
+        currentSections = null
         emit(ContentState.Loading)
         try {
             val webSiteLists = db.webSites().loadById(siteId)
             emit(ContentState.SiteDefinition(webSiteLists.site))
             val doc = withContext(Dispatchers.IO) { Jsoup.connect(webSiteLists.site.url).get() }
             val sections = webSiteLists.apply(doc)
-            emit(ContentState.SiteSections(webSiteLists.site, sections))
+            val state = ContentState.SiteSections(webSiteLists.site, sections)
+            currentSections = state
+            emit(state)
         } catch (e: Exception) {
             emit(ContentState.Error(e.message ?: "Unexpected error"))
         }
     }
-
 }

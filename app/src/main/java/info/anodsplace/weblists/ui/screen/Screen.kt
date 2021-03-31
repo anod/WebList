@@ -1,4 +1,4 @@
-package info.anodsplace.weblists
+package info.anodsplace.weblists.ui.screen
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.*
@@ -17,8 +17,14 @@ sealed class Screen(
     object Catalog : Screen("catalog")
 
     class Site(siteId: Long = 0L) : Screen(
-        "site?siteId=$siteId",
-        "site?siteId={siteId}",
+        "sites/$siteId",
+        "sites/{siteId}",
+        arguments = listOf(navArgument("siteId") { type = NavType.LongType })
+    )
+
+    class Search(siteId: Long = 0L) : Screen(
+        "sites/$siteId/search",
+        "sites/{siteId}/search",
         arguments = listOf(navArgument("siteId") { type = NavType.LongType })
     )
 

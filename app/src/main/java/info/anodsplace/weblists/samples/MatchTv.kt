@@ -26,10 +26,8 @@ object MatchTv {
                                 ),
                                 CssTransformation(".media-paging__date") {
                                     StyleTransformation(
-                                        SpanStyle(
                                             fontSize = 24f.sp,
                                             fontWeight = FontWeight.Bold
-                                        )
                                     )
                                 },
                                 CssTransformation(".media-paging__weekday")
@@ -50,10 +48,8 @@ object MatchTv {
                             values = listOf(
                                 CssTransformation(".media-paging__date") {
                                     StyleTransformation(
-                                        SpanStyle(
-                                            fontSize = 24f.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
+                                        fontSize = 24f.sp,
+                                        fontWeight = FontWeight.Bold
                                     )
                                 },
                                 CssTransformation(".media-paging__weekday")
@@ -75,11 +71,10 @@ object MatchTv {
                     ),
                     CssTransformation("h3 .heading-3") {
                         StyleTransformation(
-                            SpanStyle(
-                                color = Teal200,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 4f.sp
-                            )
+                            color = Teal200,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 4f.sp,
+                            annotations = listOf(AnnotationAttributes.header)
                         )
                     },
                     CssTransformation("ul.tv-programm__tvshows-list li.tv-programm__tvshows-item") {

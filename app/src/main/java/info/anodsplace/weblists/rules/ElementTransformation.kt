@@ -1,10 +1,14 @@
 package info.anodsplace.weblists.rules
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.*
+import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import info.anodsplace.weblists.joinAnnotatedString
@@ -18,6 +22,11 @@ import org.jsoup.nodes.Element
 interface ElementTransformation {
     fun apply(element: Element): List<AnnotatedString>
     fun definition(): TransformationDefinition
+}
+
+object AnnotationAttributes {
+    const val tag = "web-list"
+    const val header = "web-list-header"
 }
 
 class TextTransformation: ElementTransformation {
@@ -72,14 +81,16 @@ data class StyleParameters @OptIn(ExperimentalUnsignedTypes::class) constructor(
     val letterSpacing: Float? = null,
     val background: ULong? = null,
     val textDecoration: Int? = null,
+    val annotations: List<String> = emptyList()
 ) {
-    constructor(spanStyle: SpanStyle) : this(
+    constructor(spanStyle: SpanStyle, annotations: List<String> = emptyList()) : this(
         color = if (spanStyle.color == Color.Unspecified) null else spanStyle.color.value,
         fontSize = if (spanStyle.fontSize == TextUnit.Unspecified) null else spanStyle.fontSize.value,
         fontWeight = spanStyle.fontWeight?.weight,
         letterSpacing = if (spanStyle.letterSpacing == TextUnit.Unspecified) null else spanStyle.letterSpacing.value,
         background = if (spanStyle.background == Color.Unspecified) null else spanStyle.background.value,
-        textDecoration = spanStyle.textDecoration?.mask
+        textDecoration = spanStyle.textDecoration?.mask,
+        annotations = annotations
     )
 
     fun toSpanStyle() = SpanStyle(
@@ -112,11 +123,34 @@ class StyleTransformation(private val params: StyleParameters): ElementTransform
 
     constructor(spanStyle: SpanStyle) : this(StyleParameters(spanStyle))
 
+    constructor(
+        color: Color = Color.Unspecified,
+        fontSize: TextUnit = TextUnit.Unspecified,
+        fontWeight: FontWeight? = null,
+        letterSpacing: TextUnit = TextUnit.Unspecified,
+        background: Color = Color.Unspecified,
+        textDecoration: TextDecoration? = null,
+        annotations: List<String> = emptyList()
+    ) : this(StyleParameters(SpanStyle(
+        color = color,
+        fontSize = fontSize,
+        fontWeight = fontWeight,
+        letterSpacing = letterSpacing,
+        background = background,
+        textDecoration = textDecoration
+    ), annotations))
+
     override fun apply(element: Element): List<AnnotatedString> {
         return listOf(with(AnnotatedString.Builder()) {
+            if (params.annotations.isNotEmpty()) {
+                for (annotation in params.annotations) {
+                    addStringAnnotation(AnnotationAttributes.tag, annotation, 0, 0)
+                }
+            }
             pushStyle(params.toSpanStyle())
             append(element.text())
             pop()
+
             toAnnotatedString()
         })
     }
