@@ -22,102 +22,67 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import info.anodsplace.weblists.rules.WebSection
 import info.anodsplace.weblists.rules.WebSite
 import info.anodsplace.weblists.ui.theme.WebListTheme
 
-sealed class Screens(val route: String) {
-    object Empty : Screens("empty") {
-        val path = "empty"
-    }
-
-    object Catalog : Screens("catalog") {
-        val path = "catalog"
-    }
-
-    class Site(val siteId: Long) : Screens("site?siteId=$siteId") {
-        companion object {
-            val path = "site?siteId={siteId}"
-            val arguments = listOf(navArgument("siteId") { type = NavType.LongType })
-        }
-    }
-
-    class Error(val message: String) : Screens("error?message=$message") {
-        companion object {
-            val path = "error?message={message}"
-            val arguments = listOf(navArgument("message") {
-                defaultValue = "Unexpected error"
-            })
-        }
-    }
-}
-
 @Composable
 fun MainScreen(viewModel: MainViewModel) {
     val navController = rememberNavController()
 
-    NavHost(navController, startDestination = Screens.Catalog.route) {
-        composable(Screens.Empty.path) { EmptyContent() }
-        composable(Screens.Catalog.path) {
+    NavHost(navController, startDestination = Screen.Catalog.route) {
+        composable(Screen.Empty) { EmptyContent() }
+        composable(Screen.Catalog) {
             val state = viewModel.sites.collectAsState(initial = ContentState.Loading)
             when (val c = state.value) {
-                is ContentState.Error -> navController.navigate(Screens.Error(c.message).route)
+                is ContentState.Error -> navController.navigate(Screen.Error(c.message).route)
                 is ContentState.Catalog -> ListContent(c.sites) {
-                    navController.navigate(Screens.Site(it).route)
+                    navController.navigate(Screen.Site(it).route)
                 }
                 is ContentState.Loading -> {
                     viewModel.loadSites()
                     LoadingCatalog()
                 }
-                else -> navController.navigate(Screens.Error("Unknown state $c").route)
+                else -> navController.navigate(Screen.Error("Unknown state $c").route)
             }
         }
-        composable(
-            Screens.Site.path,
-            arguments = Screens.Site.arguments
-        ) { backStackEntry ->
+        composable(Screen.Site(0L)) { backStackEntry ->
             val siteId = backStackEntry.arguments?.getLong("siteId") ?: 0L
             val siteState = remember { viewModel.loadSite(siteId) }
                 .collectAsState(initial = ContentState.Loading)
             when (val siteValue = siteState.value) {
                 is ContentState.Error -> {
                     viewModel.prefs.lastSiteId = -1
-                    navController.navigate("error?message=${siteValue.message}")
+                    navController.navigate(Screen.Error(siteValue.message).route)
                 }
                 is ContentState.SiteDefinition -> {
                     viewModel.prefs.lastSiteId = siteId
-                    val title = siteValue.site.title
-                    LoadingSiteContent(title = title) {
-                        navController.navigate("catalog") {
+                    LoadingSiteContent(title = siteValue.site.title) {
+                        navController.navigate(Screen.Catalog) {
                             popUpTo = navController.graph.startDestination
                             launchSingleTop = true
                         }
                     }
                 }
                 is ContentState.SiteSections -> {
-                    val title = siteValue.site.title
-                    SiteContent(title, siteValue.sections) {
-                        navController.navigate("catalog") {
+                    SiteContent(siteValue.site.title, siteValue.sections) {
+                        navController.navigate(Screen.Catalog) {
                             popUpTo = navController.graph.startDestination
                             launchSingleTop = true
                         }
                     }
                 }
                 is ContentState.Loading -> LoadingCatalog()
-                else -> navController.navigate("error?message=Unknown state $siteState")
+                else -> navController.navigate(Screen.Error("Unknown state $siteState").route)
+            }
+        }
+        composable(Screen.Error()) { backStackEntry ->
+            ErrorContent(
+                backStackEntry.arguments?.getString("message") ?: "Unexpected error"
+            )
         }
     }
-    composable(
-        Screens.Error.path,
-        arguments = Screens.Error.arguments
-    ) { backStackEntry ->
-        ErrorContent(
-            backStackEntry.arguments?.getString("message") ?: "Unexpected error"
-        )
-    }
-}
 }
 
 @Composable
