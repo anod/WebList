@@ -2,10 +2,15 @@ package info.anodsplace.weblists
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import info.anodsplace.weblists.rules.AnnotationAttributes
 import org.jsoup.nodes.Element
 
 fun Element.toAnnotatedString(): AnnotatedString {
     return AnnotatedString.Builder(this.text()).toAnnotatedString()
+}
+
+fun AnnotatedString.asListHeader(): AnnotatedString  {
+    return AnnotationAttributes.header(this)
 }
 
 fun String.toAnnotatedString(spanStyle: SpanStyle? = null): AnnotatedString {

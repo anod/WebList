@@ -31,6 +31,13 @@ object AnnotationAttributes {
     fun header(builder: AnnotatedString.Builder) {
         builder.addStringAnnotation(tag, header, 0, 0)
     }
+
+    fun header(string: AnnotatedString): AnnotatedString {
+        return with(AnnotatedString.Builder(string)) {
+            header(this)
+            toAnnotatedString()
+        }
+    }
 }
 
 class TextTransformation: ElementTransformation {

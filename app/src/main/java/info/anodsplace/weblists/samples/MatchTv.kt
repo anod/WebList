@@ -8,7 +8,7 @@ import info.anodsplace.weblists.ui.theme.Teal200
 
 object MatchTv {
 
-    internal fun sample(siteId: Long): List<WebList> {
+    fun sample(siteId: Long): List<WebList> {
         return listOf(
             WebList(
                 siteId = siteId,

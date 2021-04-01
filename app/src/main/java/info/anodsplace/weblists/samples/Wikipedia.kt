@@ -1,6 +1,5 @@
 package info.anodsplace.weblists.samples
 
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import info.anodsplace.weblists.rules.*
@@ -8,7 +7,7 @@ import info.anodsplace.weblists.ui.theme.Teal200
 
 object Wikipedia {
 
-    internal fun sample(siteId: Long): List<WebList> {
+    fun sample(siteId: Long): List<WebList> {
         return listOf(
             WebList(
                 siteId = siteId,
@@ -16,11 +15,12 @@ object Wikipedia {
                 cssQuery = "#mp-right",
                 transformations = listOf(
                     CssTransformation("#In_the_news") {
-                        StyleTransformation(SpanStyle(
+                        StyleTransformation(
                             color = Teal200,
                             fontWeight = FontWeight.Bold,
-                            letterSpacing = 4f.sp
-                        ))
+                            letterSpacing = 4f.sp,
+                            annotations = listOf(AnnotationAttributes.header)
+                        )
                     },
                     CssTransformation("#mp-itn > ul li") {
                         TextTransformation()
@@ -33,11 +33,12 @@ object Wikipedia {
                 cssQuery = "#mp-right",
                 transformations = listOf(
                     CssTransformation("#On_this_day") {
-                        StyleTransformation(SpanStyle(
+                        StyleTransformation(
                             color = Teal200,
                             fontWeight = FontWeight.Bold,
-                            letterSpacing = 4f.sp
-                        ))
+                            letterSpacing = 4f.sp,
+                            annotations = listOf(AnnotationAttributes.header)
+                        )
                     },
                     CssTransformation("#mp-otd > ul li") {
                         TextTransformation()
