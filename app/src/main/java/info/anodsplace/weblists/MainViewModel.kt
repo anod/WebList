@@ -3,6 +3,7 @@ package info.anodsplace.weblists
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import info.anodsplace.weblists.extensions.loadDoc
 import info.anodsplace.weblists.rules.WebSection
 import info.anodsplace.weblists.rules.WebSite
 import kotlinx.coroutines.Dispatchers
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -47,7 +49,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
         try {
             val webSiteLists = db.webSites().loadById(siteId)
             emit(ContentState.SiteDefinition(webSiteLists.site))
-            val doc = withContext(Dispatchers.IO) { Jsoup.connect(webSiteLists.site.url).get() }
+            val doc = loadDoc(webSiteLists.site.url)
             val sections = webSiteLists.apply(doc)
             val state = ContentState.SiteSections(webSiteLists.site, sections)
             currentSections = state
