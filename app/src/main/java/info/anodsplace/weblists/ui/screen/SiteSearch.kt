@@ -26,10 +26,12 @@ import androidx.compose.ui.focus.FocusRequesterModifier
 import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import info.anodsplace.weblists.R
 import info.anodsplace.weblists.asListHeader
 import info.anodsplace.weblists.findAll
 import info.anodsplace.weblists.rules.AnnotationAttributes
@@ -86,11 +88,11 @@ fun SiteSearch(
                         ))
                     }
                 },
-                placeholder = { Text(text = "Search for text") },
+                placeholder = { Text(text = stringResource(R.string.find_text)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Search,
-                        contentDescription = "Search"
+                        contentDescription = stringResource(R.string.find_text)
                     )
                 },
                 trailingIcon = {
@@ -115,7 +117,7 @@ fun SiteSearch(
                             }) {
                                 Icon(
                                     imageVector = Icons.Filled.KeyboardArrowDown,
-                                    contentDescription = "Next"
+                                    contentDescription = stringResource(R.string.next_result)
                                 )
                             }
                             TextButton(onClick = {
@@ -133,7 +135,7 @@ fun SiteSearch(
                             }) {
                                 Icon(
                                     imageVector = Icons.Filled.KeyboardArrowUp,
-                                    contentDescription = "Previous"
+                                    contentDescription = stringResource(R.string.previous_result)
                                 )
                             }
                         }

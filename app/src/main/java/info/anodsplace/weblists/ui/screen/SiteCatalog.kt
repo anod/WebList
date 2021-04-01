@@ -13,11 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import info.anodsplace.weblists.R
 import info.anodsplace.weblists.rules.WebSite
 import info.anodsplace.weblists.ui.theme.WebListTheme
-
 
 @Composable
 fun LoadingCatalog() {
@@ -39,7 +40,7 @@ fun CatalogContent(sites: List<WebSite>, navigateToSite: (siteId: Long) -> Unit)
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 8.dp)
                     .clip(RoundedCornerShape(4.dp)),
-                title = { Text(text = "Sites") },
+                title = { Text(text = stringResource(R.string.web_lists)) },
                 backgroundColor = MaterialTheme.colors.primary
             )
 
@@ -48,31 +49,38 @@ fun CatalogContent(sites: List<WebSite>, navigateToSite: (siteId: Long) -> Unit)
                 contentPadding = PaddingValues(4.dp)
             ) {
                 items(sites.size) { index ->
-                    val title = sites[index].title
-                    Box {
-                        Button(
-                            onClick = { navigateToSite(sites[index].id) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .defaultMinSize(minHeight = 72.dp)
-                                .padding(horizontal = 4.dp, vertical = 4.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(),
-                        ) {
-                            Text(text = title, style = MaterialTheme.typography.body1)
-                        }
+                    SiteButton(title = sites[index].title) { navigateToSite(sites[index].id) }
+                }
 
-                        Icon(
-                            imageVector = Icons.Filled.Star,
-                            contentDescription = title,
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(8.dp)
-                        )
-                    }
-
+                item {
+                    SiteButton(title = stringResource(R.string.add_new)) {  }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SiteButton(title: String, onClick: () -> Unit) {
+    Box {
+        Button(
+            onClick = onClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 72.dp)
+                .padding(horizontal = 4.dp, vertical = 4.dp),
+            colors = ButtonDefaults.outlinedButtonColors(),
+        ) {
+            Text(text = title, style = MaterialTheme.typography.body1)
+        }
+
+        Icon(
+            imageVector = Icons.Filled.Star,
+            contentDescription = title,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(8.dp)
+        )
     }
 }
 

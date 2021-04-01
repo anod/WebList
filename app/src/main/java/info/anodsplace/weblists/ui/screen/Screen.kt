@@ -22,12 +22,6 @@ sealed class Screen(
         arguments = listOf(navArgument("siteId") { type = NavType.LongType })
     )
 
-//    class Search(siteId: Long = 0L) : Screen(
-//        "sites/$siteId/search",
-//        "sites/{siteId}/search",
-//        arguments = listOf(navArgument("siteId") { type = NavType.LongType })
-//    )
-
     class Error(message: String = "") : Screen(
         "error?message=$message",
         "error?message={message}",

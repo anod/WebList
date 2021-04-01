@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -17,6 +18,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import info.anodsplace.weblists.ContentState
 import info.anodsplace.weblists.MainViewModel
+import info.anodsplace.weblists.R
 import info.anodsplace.weblists.ui.theme.WebListTheme
 
 @Composable
@@ -125,12 +127,12 @@ fun EmptyContent() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "No lists were found",
+                text = stringResource(R.string.no_lists_found),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(16.dp)
             )
             Button(onClick = { }) {
-                Text(text = "Add new", textAlign = TextAlign.Center)
+                Text(text = stringResource(R.string.add_new), textAlign = TextAlign.Center)
             }
         }
     }
