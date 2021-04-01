@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
@@ -66,16 +67,6 @@ fun MainScreen(viewModel: MainViewModel) {
                     else -> navController.navigate(Screen.Error("Unknown state $siteState").route)
                 }
             }
-            composable(Screen.Search()) { backStackEntry ->
-                val siteValue = viewModel.currentSections
-                if (siteValue != null) {
-                    SiteSearch(siteValue.site, siteValue.sections) {
-
-                    }
-                } else {
-                    navController.popBackStack()
-                }
-            }
         }
     }
 }
@@ -89,9 +80,6 @@ fun onSiteAction(action: SiteAction, navController: NavHostController) {
             }
         }
         is SiteAction.Search -> {
-            navController.navigate(Screen.Search(action.siteId)) {
-
-            }
         }
     }
 }
@@ -101,13 +89,17 @@ fun MainSurface(
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.Center,
     backgroundColor: Color = MaterialTheme.colors.background,
+    elevation: Dp = 0.dp,
     content: @Composable () -> Unit
 ) {
-    Surface(color = backgroundColor) {
+    Surface(
+        color = backgroundColor,
+        elevation = elevation,
+    ) {
         Box(
             modifier = modifier
-                .fillMaxHeight()
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .fillMaxHeight(),
             contentAlignment = contentAlignment
         ) {
             content()

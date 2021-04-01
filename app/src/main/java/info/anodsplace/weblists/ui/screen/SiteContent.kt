@@ -5,6 +5,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -54,12 +55,30 @@ fun SiteTopBar(site: WebSite, action: (SiteAction) -> Unit) {
 fun SiteContent(site: WebSite,
                 sections: List<WebSection>,
                 isLoading: Boolean,
+                initialSearch: Boolean = false,
                 action: (SiteAction) -> Unit = {}) {
+    val showSearch = remember {
+        mutableStateOf(initialSearch)
+    }
     MainSurface {
         if (isLoading) {
             CircularProgressIndicator()
         } else {
-            SiteSections(site, sections, action)
+            SiteSections(site, sections) {
+                when (it) {
+                    is SiteAction.Search -> {
+                        showSearch.value = true
+                    }
+                    else -> {
+                        action(it)
+                    }
+                }
+            }
+            if (showSearch.value) {
+                SiteSearch(site, sections) {
+
+                }
+            }
         }
     }
 }
@@ -67,10 +86,12 @@ fun SiteContent(site: WebSite,
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SiteSections(site: WebSite, sections: List<WebSection>, action: (SiteAction) -> Unit) {
+    val listState = rememberLazyListState()
     LazyColumn(
         modifier = Modifier
             .fillMaxHeight()
             .fillMaxWidth(),
+        state = listState,
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         stickyHeader {
@@ -116,7 +137,7 @@ fun DefaultPreview() {
                 WebSection(true, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi"))),
                 WebSection(false, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi")))
             ),
-            false
+            isLoading = false
         ) { }
     }
 }
@@ -128,7 +149,23 @@ fun LoadingSectionsPreview() {
         SiteContent(
             WebSite(0, "url", "Android"),
             emptyList(),
-            true
+            isLoading = true
+        ) { }
+    }
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun SearchPreview() {
+    WebListTheme {
+        SiteContent(
+            WebSite(0, "url", "Android"),
+            listOf(
+                WebSection(true, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi"))),
+                WebSection(false, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi")))
+            ),
+            isLoading = false,
+            initialSearch = true
         ) { }
     }
 }

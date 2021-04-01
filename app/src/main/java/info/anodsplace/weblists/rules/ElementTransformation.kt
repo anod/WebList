@@ -27,6 +27,10 @@ interface ElementTransformation {
 object AnnotationAttributes {
     const val tag = "web-list"
     const val header = "web-list-header"
+
+    fun header(builder: AnnotatedString.Builder) {
+        builder.addStringAnnotation(tag, header, 0, 0)
+    }
 }
 
 class TextTransformation: ElementTransformation {
