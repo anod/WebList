@@ -59,7 +59,7 @@ fun MainScreen(viewModel: MainViewModel) {
                         }
                     }
                     is ContentState.SiteSections -> {
-                        SiteContent(siteValue.site, siteValue.sections, isLoading = false) {
+                        SiteContent(siteValue.site, siteValue.sections, isLoading = false, addBackPressHandler = true) {
                             onSiteAction(it, navController)
                         }
                     }

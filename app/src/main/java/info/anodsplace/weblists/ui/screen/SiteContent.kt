@@ -25,6 +25,7 @@ import info.anodsplace.weblists.findAll
 import info.anodsplace.weblists.rules.AnnotationAttributes
 import info.anodsplace.weblists.rules.WebSection
 import info.anodsplace.weblists.rules.WebSite
+import info.anodsplace.weblists.ui.BackPressHandler
 import info.anodsplace.weblists.ui.theme.WebListTheme
 import kotlinx.coroutines.launch
 import java.lang.Integer.min
@@ -62,6 +63,7 @@ fun SiteContent(
     sections: List<WebSection>,
     isLoading: Boolean,
     initialSearch: Boolean = false,
+    addBackPressHandler: Boolean = false,
     action: (SiteAction) -> Unit = {}
 ) {
     MainSurface {
@@ -73,6 +75,15 @@ fun SiteContent(
             val rowState = rememberLazyListState()
             val showSearch = remember { mutableStateOf(initialSearch) }
             val coroutineScope = rememberCoroutineScope()
+
+            if (addBackPressHandler) {
+                BackPressHandler(
+                    onBackPressed = {
+                        showSearch.value = false
+                    },
+                    enabled = showSearch.value
+                )
+            }
 
             Column {
                 if (showSearch.value) {
