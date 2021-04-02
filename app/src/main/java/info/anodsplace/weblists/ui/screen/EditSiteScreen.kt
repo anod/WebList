@@ -24,7 +24,7 @@ import org.jsoup.nodes.Document
 
 @Composable
 fun EditSiteScreen(siteId: Long, viewModel: MainViewModel) {
-    val editSiteState = viewModel.draftSite.collectAsState()
+    val editSiteState = remember { viewModel.loadDraft(siteId) }.collectAsState()
     val document by viewModel.docSource.collectAsState()
     EditSiteLists(
         editSiteState,
@@ -32,8 +32,6 @@ fun EditSiteScreen(siteId: Long, viewModel: MainViewModel) {
     ) { site, lists, loadPreview ->
         viewModel.updateDraft(site, lists, loadPreview)
     }
-
-    viewModel.loadDraft(siteId)
 }
 
 @Composable
@@ -43,7 +41,7 @@ fun EditSiteLists(
     onChange: (site: WebSite, lists: List<WebList>, loadDoc: Boolean) -> Unit = { _, _, _ -> }) {
     val site = webSiteLists.value.site
     val lists = webSiteLists.value.lists
-    val editSite by remember { mutableStateOf(site.url.isEmpty()) }
+    val editSite by remember { mutableStateOf(site.id == 0L) }
     MainSurface(
         contentAlignment = Alignment.TopCenter
     ) {
@@ -64,7 +62,7 @@ fun EditSiteLists(
                 }
             } else {
                 PreviewSite(site = site) {
-                    DocumentPreview(document)
+                    EditLists(lists)
                 }
             }
         }
@@ -72,9 +70,11 @@ fun EditSiteLists(
 }
 
 @Composable
-fun EditSite(site: WebSite,
-             onChange: (site: WebSite, loadPreview: Boolean) -> Unit = { _, _ -> },
-             content: @Composable () -> Unit) {
+fun EditSite(
+    site: WebSite,
+    onChange: (site: WebSite, loadPreview: Boolean) -> Unit = { _, _ -> },
+    content: @Composable () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -142,7 +142,9 @@ fun PreviewSite(site: WebSite, content: @Composable () -> Unit) {
 @Composable
 fun DocumentPreview(document: Document? = null) {
     OutlinedTextField(
-        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(),
         value = document?.body()?.toString() ?: "",
         onValueChange = { }
     )

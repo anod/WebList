@@ -32,7 +32,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
     private val jsoup: JsoupClient by inject()
     val prefs: Preferences by inject()
     val sites = MutableStateFlow<ContentState>(ContentState.Loading)
-    val draftSite = MutableStateFlow(WebSiteLists(WebSite(0, "", ""), emptyList()))
+    private var draftSite: MutableStateFlow<WebSiteLists>? = null
     val docSource = MutableStateFlow<Document?>(null)
     var currentSections: ContentState.SiteSections? = null
 
@@ -65,7 +65,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
 
     private var docJob: Job? = null
     fun updateDraft(site: WebSite, lists: List<WebList>, loadPreview: Boolean) {
-        draftSite.value = WebSiteLists(site, lists)
+        draftSite?.value = WebSiteLists(site, lists)
         if (loadPreview && site.url.isValidUrl()) {
             docJob?.cancel()
             docJob = viewModelScope.launch {
@@ -74,7 +74,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
                         if (site.title.isEmpty()) {
                             val title = doc.title()
                             if (title.isNotEmpty()) {
-                                draftSite.emit(WebSiteLists(site.copy(title = title), lists))
+                                draftSite?.emit(WebSiteLists(site.copy(title = title), lists))
                             }
                         }
                         docSource.emit(doc)
@@ -85,21 +85,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
         }
     }
 
-    fun loadDraft(siteId: Long) {
+    fun loadDraft(siteId: Long): MutableStateFlow<WebSiteLists> {
+        val initialValue = (WebSiteLists(WebSite(siteId, "", ""), emptyList()))
+        draftSite = MutableStateFlow(initialValue)
         if (siteId == 0L) {
-            return
+            return draftSite!!
         }
         viewModelScope.launch {
             try {
                 val webSiteLists = db.webSites().loadById(siteId)
-                draftSite.emit(webSiteLists)
+                draftSite?.emit(webSiteLists)
                 if (webSiteLists.site.url.isValidUrl()) {
                     val doc = jsoup.loadDoc(webSiteLists.site.url)
                     docSource.emit(doc)
                 }
             } catch (e: Exception) {
-
             }
         }
+        return draftSite!!
     }
 }
