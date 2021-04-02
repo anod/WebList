@@ -14,7 +14,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import info.anodsplace.weblists.ContentState
 import info.anodsplace.weblists.MainViewModel
@@ -35,7 +34,7 @@ fun MainScreen(viewModel: MainViewModel) {
             when (val c = state.value) {
                 is ContentState.Error -> navController.navigate(Screen.Error(c.message).route)
                 is ContentState.Catalog -> CatalogContent(c.sites) {
-                    navController.navigate(Screen.Site(it).route)
+                    navController.navigate(it)
                 }
                 is ContentState.Loading -> {
                     viewModel.loadSites()
@@ -44,11 +43,14 @@ fun MainScreen(viewModel: MainViewModel) {
                 else -> navController.navigate(Screen.Error("Unknown state $c").route)
             }
         }
+        composable(Screen.EditSite()) { backStackEntry ->
+            val siteId = backStackEntry.arguments?.getLong("siteId") ?: 0L
+            EditSiteScreen(siteId, viewModel = viewModel)
+        }
         navigation(startDestination = Screen.Site().template, route = "sites") {
             composable(Screen.Site()) { backStackEntry ->
                 val siteId = backStackEntry.arguments?.getLong("siteId") ?: 0L
-                val siteState = remember { viewModel.loadSite(siteId) }
-                    .collectAsState(initial = ContentState.Loading)
+                val siteState = remember { viewModel.loadSite(siteId) }.collectAsState(initial = ContentState.Loading)
                 when (val siteValue = siteState.value) {
                     is ContentState.Error -> {
                         viewModel.prefs.lastSiteId = -1
@@ -57,31 +59,18 @@ fun MainScreen(viewModel: MainViewModel) {
                     is ContentState.SiteDefinition -> {
                         viewModel.prefs.lastSiteId = siteId
                         SiteContent(siteValue.site, emptyList(), isLoading = true) {
-                            onSiteAction(it, navController)
+                            navController.navigate(it)
                         }
                     }
                     is ContentState.SiteSections -> {
                         SiteContent(siteValue.site, siteValue.sections, isLoading = false, addBackPressHandler = true) {
-                            onSiteAction(it, navController)
+                            navController.navigate(it)
                         }
                     }
                     is ContentState.Loading -> LoadingCatalog()
                     else -> navController.navigate(Screen.Error("Unknown state $siteState").route)
                 }
             }
-        }
-    }
-}
-
-fun onSiteAction(action: SiteAction, navController: NavHostController) {
-    when (action) {
-        is SiteAction.Catalog -> {
-            navController.navigate(Screen.Catalog) {
-                popUpTo = navController.graph.startDestination
-                launchSingleTop = true
-            }
-        }
-        is SiteAction.Search -> {
         }
     }
 }

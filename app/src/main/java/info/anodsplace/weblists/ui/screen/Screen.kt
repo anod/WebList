@@ -10,15 +10,27 @@ import androidx.navigation.compose.navigate
 sealed class Screen(
     val route: String,
     val template: String = route,
+    val initial: Boolean = false,
     val arguments: List<NamedNavArgument> = emptyList()
 ) {
     object Empty : Screen("empty")
-
-    object Catalog : Screen("catalog")
+    object Catalog : Screen("catalog", initial = true)
 
     class Site(siteId: Long = 0L) : Screen(
         "sites/$siteId",
         "sites/{siteId}",
+        arguments = listOf(navArgument("siteId") { type = NavType.LongType })
+    )
+
+    class EditSite(siteId: Long = 0L) : Screen(
+        "sites/$siteId/edit",
+        "sites/{siteId}/edit",
+        arguments = listOf(navArgument("siteId") { type = NavType.LongType })
+    )
+
+    class SearchSite(val siteId: Long = 0L) : Screen(
+        "sites/$siteId/search",
+        "sites/{siteId}/search",
         arguments = listOf(navArgument("siteId") { type = NavType.LongType })
     )
 
@@ -37,6 +49,11 @@ fun NavGraphBuilder.composable(screen: Screen, content: @Composable (NavBackStac
     )
 }
 
-fun NavController.navigate(screen: Screen, builder: NavOptionsBuilder.() -> Unit = {}) {
-    navigate(screen.route, builder)
+fun NavController.navigate(screen: Screen) {
+    navigate(screen.route) {
+        if (screen.initial) {
+            popUpTo = graph.startDestination
+            launchSingleTop = true
+        }
+    }
 }

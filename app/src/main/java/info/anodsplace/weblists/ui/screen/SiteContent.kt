@@ -21,10 +21,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import info.anodsplace.weblists.R
 import info.anodsplace.weblists.findAll
-import info.anodsplace.weblists.rules.AnnotationAttributes
 import info.anodsplace.weblists.rules.WebSection
 import info.anodsplace.weblists.rules.WebSite
 import info.anodsplace.weblists.ui.BackPressHandler
@@ -32,26 +30,21 @@ import info.anodsplace.weblists.ui.theme.WebListTheme
 import kotlinx.coroutines.launch
 import java.lang.Integer.min
 
-sealed class SiteAction {
-    object Catalog: SiteAction()
-    class Search(val siteId: Long): SiteAction()
-}
-
 @Composable
-fun SiteTopBar(site: WebSite, action: (SiteAction) -> Unit) {
+fun SiteTopBar(site: WebSite, navigate: (Screen) -> Unit) {
     TopAppBar(
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 8.dp)
             .clip(RoundedCornerShape(4.dp)),
         title = { Text(text = site.title) },
         navigationIcon = {
-            IconButton(onClick = { action(SiteAction.Catalog) }) {
+            IconButton(onClick = { navigate(Screen.Catalog) }) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = stringResource(R.string.back_to_catalog))
             }
         },
         backgroundColor = MaterialTheme.colors.primary,
         actions = {
-            IconButton(onClick = { action(SiteAction.Search(site.id)) }) {
+            IconButton(onClick = { navigate(Screen.SearchSite(site.id)) }) {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = stringResource(R.string.search))
             }
         }
@@ -66,7 +59,7 @@ fun SiteContent(
     isLoading: Boolean,
     initialSearch: Boolean = false,
     addBackPressHandler: Boolean = false,
-    action: (SiteAction) -> Unit = {}
+    navigate: (Screen) -> Unit = {}
 ) {
     MainSurface {
         if (isLoading) {
@@ -112,11 +105,11 @@ fun SiteContent(
                 } else {
                     SiteTopBar(site) { siteAction ->
                         when (siteAction) {
-                            is SiteAction.Search -> {
+                            is Screen.SearchSite -> {
                                 showSearch.value = true
                             }
                             else -> {
-                                action(siteAction)
+                                navigate(siteAction)
                             }
                         }
                     }

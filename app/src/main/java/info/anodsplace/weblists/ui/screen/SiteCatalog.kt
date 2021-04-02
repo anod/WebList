@@ -29,7 +29,7 @@ fun LoadingCatalog() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun CatalogContent(sites: List<WebSite>, navigateToSite: (siteId: Long) -> Unit) {
+fun CatalogContent(sites: List<WebSite>, navigate: (Screen) -> Unit) {
     MainSurface {
         Column(
             modifier = Modifier
@@ -49,11 +49,13 @@ fun CatalogContent(sites: List<WebSite>, navigateToSite: (siteId: Long) -> Unit)
                 contentPadding = PaddingValues(4.dp)
             ) {
                 items(sites.size) { index ->
-                    SiteButton(title = sites[index].title) { navigateToSite(sites[index].id) }
+                    SiteButton(title = sites[index].title) { navigate(Screen.Site(sites[index].id)) }
                 }
 
                 item {
-                    SiteButton(title = stringResource(R.string.add_new)) {  }
+                    SiteButton(title = stringResource(R.string.add_new)) {
+                        navigate(Screen.EditSite())
+                    }
                 }
             }
         }

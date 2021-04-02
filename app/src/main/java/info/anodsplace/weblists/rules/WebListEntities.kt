@@ -10,7 +10,7 @@ import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
 @Entity(tableName = "web_site")
-class WebSite(
+data class WebSite(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val url: String,
     val title: String,
