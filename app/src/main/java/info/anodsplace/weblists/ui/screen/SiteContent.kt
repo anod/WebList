@@ -228,14 +228,17 @@ fun DefaultPreview() {
     }
 }
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
-fun LoadingSectionsPreview() {
+fun DefaultLightPreview() {
     WebListTheme {
         SiteContent(
             WebSite(0, "url", "Android"),
-            emptyList(),
-            isLoading = true
+            listOf(
+                WebSection(true, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi"))),
+                WebSection(false, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi")))
+            ),
+            isLoading = false
         ) { }
     }
 }

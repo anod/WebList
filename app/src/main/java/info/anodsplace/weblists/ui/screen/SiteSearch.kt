@@ -152,7 +152,9 @@ fun SiteSearch(
                             .fillMaxWidth()
                             .defaultMinSize(minHeight = 72.dp)
                             .padding(horizontal = 4.dp, vertical = 4.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colors.onSurface
+                        ),
                     ) {
                         Text(text = title.toString(), style = MaterialTheme.typography.body1)
                     }
@@ -220,6 +222,44 @@ fun iterate(
 )
 @Composable
 fun SiteSearchPreview() {
+    WebListTheme {
+        SiteSearch(
+            sections = listOf(
+                WebSection(
+                    true, listOf(
+                        AnnotatedString("Banana").asListHeader(),
+                        AnnotatedString("Blackcurrant"),
+                        AnnotatedString("Blueberry").asListHeader(),
+                        AnnotatedString("Chili pepper"),
+                        AnnotatedString("Cranberry"),
+                    )
+                ),
+                WebSection(
+                    false, listOf(
+                        AnnotatedString("Eggplant"),
+                        AnnotatedString("Gooseberry").asListHeader(),
+                        AnnotatedString("Grape"),
+                        AnnotatedString("Guava"),
+                        AnnotatedString("Kiwifruit").asListHeader(),
+                        AnnotatedString("Lucuma"),
+                        AnnotatedString("Pomegranate"),
+                        AnnotatedString("Redcurrant"),
+                        AnnotatedString("Tomato")
+                    )
+                )
+            ),
+            searchValue = mutableStateOf("rry")
+        ) { }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    backgroundColor = android.graphics.Color.MAGENTA.toLong(),
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Composable
+fun SiteSearchLigthPreview() {
     WebListTheme {
         SiteSearch(
             sections = listOf(

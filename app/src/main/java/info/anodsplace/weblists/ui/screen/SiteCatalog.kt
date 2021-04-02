@@ -71,7 +71,9 @@ fun SiteButton(title: String, onClick: () -> Unit) {
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = 72.dp)
                 .padding(horizontal = 4.dp, vertical = 4.dp),
-            colors = ButtonDefaults.outlinedButtonColors(),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colors.onSurface
+            ),
         ) {
             Text(text = title, style = MaterialTheme.typography.body1)
         }
