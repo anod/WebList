@@ -10,8 +10,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +31,7 @@ import java.lang.Integer.min
 
 @Composable
 fun SiteTopBar(site: WebSite, navigate: (Screen) -> Unit) {
+
     TopAppBar(
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 8.dp)
@@ -46,6 +46,9 @@ fun SiteTopBar(site: WebSite, navigate: (Screen) -> Unit) {
         actions = {
             IconButton(onClick = { navigate(Screen.SearchSite(site.id)) }) {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = stringResource(R.string.search))
+            }
+            IconButton(onClick = { navigate(Screen.EditSite(site.id))}) {
+                Icon(imageVector = Icons.Filled.Edit, contentDescription = stringResource(R.string.search))
             }
         }
     )
@@ -66,22 +69,22 @@ fun SiteContent(
             CircularProgressIndicator()
         } else {
             val searchValue = remember { mutableStateOf("") }
+            var showSearch by remember { mutableStateOf(initialSearch) }
             val columnState = rememberLazyListState()
             val rowState = rememberLazyListState()
-            val showSearch = remember { mutableStateOf(initialSearch) }
             val coroutineScope = rememberCoroutineScope()
 
             if (addBackPressHandler) {
                 BackPressHandler(
                     onBackPressed = {
-                        showSearch.value = false
+                        showSearch = false
                     },
-                    enabled = showSearch.value
+                    enabled = showSearch
                 )
             }
 
             Column {
-                if (showSearch.value) {
+                if (showSearch) {
                     SiteSearch(sections, searchValue = searchValue) {
                         when(it) {
                             is SearchAction.ScrollTo -> {
@@ -94,11 +97,11 @@ fun SiteContent(
                                     }
                                 }
                                 if (it.close) {
-                                    showSearch.value = false
+                                    showSearch = false
                                 }
                             }
                             is SearchAction.Close -> {
-                                showSearch.value = false
+                                showSearch = false
                             }
                         }
                     }
@@ -106,7 +109,7 @@ fun SiteContent(
                     SiteTopBar(site) { siteAction ->
                         when (siteAction) {
                             is Screen.SearchSite -> {
-                                showSearch.value = true
+                                showSearch = true
                             }
                             else -> {
                                 navigate(siteAction)

@@ -1,16 +1,16 @@
 package info.anodsplace.weblists.ui.screen
 
 import android.content.res.Configuration
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,10 +25,10 @@ import org.jsoup.nodes.Document
 @Composable
 fun EditSiteScreen(siteId: Long, viewModel: MainViewModel) {
     val editSiteState = viewModel.draftSite.collectAsState()
-    val documentState = viewModel.docSource.collectAsState()
+    val document by viewModel.docSource.collectAsState()
     EditSiteLists(
         editSiteState,
-        documentState
+        document
     ) { site, lists, loadPreview ->
         viewModel.updateDraft(site, lists, loadPreview)
     }
@@ -39,12 +39,11 @@ fun EditSiteScreen(siteId: Long, viewModel: MainViewModel) {
 @Composable
 fun EditSiteLists(
     webSiteLists: State<WebSiteLists>,
-    documentState: State<Document?> = mutableStateOf(null),
+    document: Document? = null,
     onChange: (site: WebSite, lists: List<WebList>, loadDoc: Boolean) -> Unit = { _, _, _ -> }) {
     val site = webSiteLists.value.site
     val lists = webSiteLists.value.lists
-    val editSite = remember { mutableStateOf(site.url.isEmpty()) }
-    val currentUrl= remember { mutableStateOf<String?>(null) }
+    val editSite by remember { mutableStateOf(site.url.isEmpty()) }
     MainSurface(
         contentAlignment = Alignment.TopCenter
     ) {
@@ -53,26 +52,19 @@ fun EditSiteLists(
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .padding(4.dp),
-            color = MaterialTheme.colors.primaryVariant,
+            color = MaterialTheme.colors.surface,
             shape = RoundedCornerShape(8.dp)
         ) {
-            if (editSite.value) {
+            if (editSite) {
                 EditSite(
                     site = site,
-                    onChange = { site -> onChange(site, lists, false) },
-                    loadPreview = { site -> onChange(site, lists, true) }
+                    onChange = { site, loadPreview -> onChange(site, lists, loadPreview) },
                 ) {
-                    if (site.url.isValidUrl() && currentUrl.value != site.url) {
-                        DocumentPreview(documentState)
-                        currentUrl.value = site.url
-                    }
+                    DocumentPreview(document)
                 }
             } else {
                 PreviewSite(site = site) {
-                    if (site.url.isValidUrl() && currentUrl.value != site.url) {
-                        DocumentPreview(documentState)
-                        currentUrl.value = site.url
-                    }
+                    DocumentPreview(document)
                 }
             }
         }
@@ -81,40 +73,46 @@ fun EditSiteLists(
 
 @Composable
 fun EditSite(site: WebSite,
-             onChange: (site: WebSite) -> Unit = {},
-             loadPreview: (site: WebSite) -> Unit = {},
+             onChange: (site: WebSite, loadPreview: Boolean) -> Unit = { _, _ -> },
              content: @Composable () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        val urlValid = remember { mutableStateOf(site.url.isValidUrl()) }
+
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = site.url,
             onValueChange = { newUrl ->
-                onChange(site.copy(url = newUrl))
+                onChange(site.copy(url = newUrl), false)
             },
-            isError = urlValid.value && site.url.isNotEmpty(),
-            placeholder = { Text(text = "Url") },
-            singleLine = true,
+            isError = !site.url.isValidUrl() && site.url.isNotEmpty(),
+            label = { Text(text = "Url") },
+            placeholder = { Text(text = "https://example.com") },
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Uri
-            )
+                autoCorrect = false,
+                capitalization = KeyboardCapitalization.None,
+                keyboardType = KeyboardType.Uri,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(onAny = {
+                onChange(site, true)
+            })
         )
+
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = site.title,
             onValueChange = { newTitle ->
-                onChange(site.copy(url = newTitle))
+                onChange(site.copy(title = newTitle), false)
             },
-            placeholder = { Text(text = "Title") },
-            singleLine = true
+            label = { Text(text = "Title") },
+            singleLine = true,
+            keyboardActions = KeyboardActions(onAny = {
+                onChange(site, true)
+            })
         )
-        Button(onClick = { loadPreview(site) }) {
-            Text(text = "Preview HTML")
-        }
         content()
     }
 }
@@ -142,26 +140,12 @@ fun PreviewSite(site: WebSite, content: @Composable () -> Unit) {
 }
 
 @Composable
-fun DocumentPreview(document: State<Document?> = mutableStateOf(null)) {
+fun DocumentPreview(document: Document? = null) {
     OutlinedTextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
-        value = document.value?.toString() ?: "",
-        onValueChange = { },
-        singleLine = false,
+        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+        value = document?.body()?.toString() ?: "",
+        onValueChange = { }
     )
-}
-
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun EditSiteListsPreview() {
-    WebListTheme {
-        EditSiteLists(mutableStateOf(WebSiteLists(
-            WebSite(0, "http://sample1", "Sample 1"),
-            listOf()
-        )))
-    }
 }
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
@@ -170,6 +154,17 @@ fun EditSitePreview() {
     WebListTheme {
         EditSiteLists(mutableStateOf(WebSiteLists(
             WebSite(0, "", ""),
+            listOf()
+        )))
+    }
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun EditSiteListsPreview() {
+    WebListTheme {
+        EditSiteLists(mutableStateOf(WebSiteLists(
+            WebSite(0, "http://sample1", "Sample 1"),
             listOf()
         )))
     }

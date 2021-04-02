@@ -23,6 +23,6 @@ class JsoupClient(private val client: OkHttpClient) {
         val body = response.body ?: throw Exception("Empty body")
         val charset = body.contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
         val stream = response.body?.byteStream()
-        return@withContext Jsoup.parse(stream, charset.name(), url)
+        return@withContext Jsoup.parse(stream, charset.name(), url).normalise()
     }
 }

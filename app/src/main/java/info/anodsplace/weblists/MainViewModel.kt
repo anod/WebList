@@ -65,19 +65,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
 
     private var docJob: Job? = null
     fun updateDraft(site: WebSite, lists: List<WebList>, loadPreview: Boolean) {
-        viewModelScope.launch {
-            draftSite.emit(WebSiteLists(site, lists))
-            if (loadPreview && site.url.isValidUrl()) {
-                docJob?.cancel()
-                docJob = launch {
+        draftSite.value = WebSiteLists(site, lists)
+        if (loadPreview && site.url.isValidUrl()) {
+            docJob?.cancel()
+            docJob = viewModelScope.launch {
                     try {
                         val doc = jsoup.loadDoc(site.url)
+                        if (site.title.isEmpty()) {
+                            val title = doc.title()
+                            if (title.isNotEmpty()) {
+                                draftSite.emit(WebSiteLists(site.copy(title = title), lists))
+                            }
+                        }
                         docSource.emit(doc)
                     } catch (e: Exception) {
                         Log.e("UpdateDraft", "Cannot load ${site.url}", e)
                     }
                 }
-            }
         }
     }
 
@@ -89,6 +93,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
             try {
                 val webSiteLists = db.webSites().loadById(siteId)
                 draftSite.emit(webSiteLists)
+                if (webSiteLists.site.url.isValidUrl()) {
+                    val doc = jsoup.loadDoc(webSiteLists.site.url)
+                    docSource.emit(doc)
+                }
             } catch (e: Exception) {
 
             }
