@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -23,6 +24,7 @@ import info.anodsplace.weblists.rules.WebList
 import info.anodsplace.weblists.rules.WebSite
 import info.anodsplace.weblists.rules.WebSiteLists
 import info.anodsplace.weblists.ui.theme.WebListTheme
+import kotlinx.serialization.encodeToString
 import org.jsoup.nodes.Document
 
 @Composable
@@ -54,7 +56,7 @@ fun EditSiteLists(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .padding(4.dp),
+                .padding(16.dp),
             color = MaterialTheme.colors.surface,
             shape = RoundedCornerShape(8.dp)
         ) {
@@ -66,9 +68,13 @@ fun EditSiteLists(
                     DocumentPreview(document)
                 }
             } else {
-                PreviewSite(site = site) {
-                    EditLists(lists, yaml)
-                }
+                OutlinedTextField(
+                    modifier = Modifier.padding(4.dp),
+                    value = yaml.encodeToString(webSiteLists.value),
+                    onValueChange = { },
+                    readOnly = true,
+                    textStyle = MaterialTheme.typography.body2
+                )
             }
         }
     }
@@ -117,28 +123,6 @@ fun EditSite(
             keyboardActions = KeyboardActions(onAny = {
                 onChange(site, true)
             })
-        )
-        content()
-    }
-}
-
-@Composable
-fun PreviewSite(site: WebSite, content: @Composable () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            text = site.url,
-            maxLines = 1
-        )
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            text = site.title,
-            style = MaterialTheme.typography.h6,
-            maxLines = 1
         )
         content()
     }

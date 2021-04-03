@@ -2,16 +2,21 @@ package info.anodsplace.weblists.rules
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.room.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
+@Serializable
 @Entity(tableName = "web_site")
 data class WebSite(
+    @Transient // kotlin.serialization
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val url: String,
     val title: String,
 )
 
+@Serializable
 @Entity(
     tableName = "web_list",
     foreignKeys = [
@@ -26,13 +31,16 @@ data class WebSite(
     indices = [Index("siteId")]
 )
 data class WebList(
+    @Transient // kotlin.serialization
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val siteId: Long,
-    val order: Int,
+    @Transient // kotlin.serialization
+    val siteId: Long = 0,
+    @Transient // kotlin.serialization
+    val order: Int = 0,
     val cssQuery: String,
-    val isHorizontal: Boolean,
+    val horizontal: Boolean,
     val apply: TransformationContainer
-    ) {
+) {
     constructor(siteId: Long, order: Int, cssQuery: String, transformations: List<ElementTransformation>, isHorizontal: Boolean = false)
         : this(0, siteId, order, cssQuery, isHorizontal, TransformationContainer(transformations))
 
@@ -62,6 +70,7 @@ class WebSection(
     val list: List<AnnotatedString>
 )
 
+@Serializable
 data class WebSiteLists(
     @Embedded val site: WebSite,
     @Relation(
@@ -83,7 +92,7 @@ data class WebSiteLists(
         val list = mutableListOf<WebSection>()
         for (rule in listsOrdered) {
             val elements = doc.select(rule.cssQuery)
-            list.add(WebSection(rule.isHorizontal, rule.apply(elements)))
+            list.add(WebSection(rule.horizontal, rule.apply(elements)))
         }
         return list
     }
