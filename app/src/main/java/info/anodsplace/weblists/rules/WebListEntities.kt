@@ -2,10 +2,6 @@ package info.anodsplace.weblists.rules
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.room.*
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
@@ -26,26 +22,27 @@ data class WebSite(
             onUpdate = ForeignKey.CASCADE,
             onDelete = ForeignKey.CASCADE
         )
-    ]
+    ],
+    indices = [Index("siteId")]
 )
 data class WebList(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val siteId: Long,
     val order: Int,
     val cssQuery: String,
-    val transformations: TransformationContainer,
-    val isHorizontal: Boolean
-) {
+    val isHorizontal: Boolean,
+    val apply: TransformationContainer
+    ) {
     constructor(siteId: Long, order: Int, cssQuery: String, transformations: List<ElementTransformation>, isHorizontal: Boolean = false)
-        : this(0, siteId, order, cssQuery, TransformationContainer(transformations), isHorizontal)
+        : this(0, siteId, order, cssQuery, isHorizontal, TransformationContainer(transformations))
 
     constructor(siteId: Long, order: Int, cssQuery: String, transformation: ElementTransformation, isHorizontal: Boolean = false)
-            : this(0, siteId, order, cssQuery, TransformationContainer(listOf(transformation)), isHorizontal)
+            : this(0, siteId, order, cssQuery, isHorizontal, TransformationContainer(transformation))
 
     fun apply(elements: Elements): List<AnnotatedString> {
         val result = mutableListOf<AnnotatedString>()
         for (element in elements) {
-            for (transformation in transformations.list) {
+            for (transformation in apply.transformations) {
                 val values = transformation.apply(element)
                 if (transformation is FilterTransformation) {
                     if (values.isEmpty()) {

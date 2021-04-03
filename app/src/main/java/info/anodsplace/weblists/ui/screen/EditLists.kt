@@ -10,14 +10,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.charleskorn.kaml.PolymorphismStyle
 import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlConfiguration
 import info.anodsplace.weblists.rules.WebList
 import info.anodsplace.weblists.samples.MatchTv
 import info.anodsplace.weblists.ui.theme.WebListTheme
 import kotlinx.serialization.encodeToString
 
 @Composable
-fun EditLists(lists: List<WebList>) {
+fun EditLists(lists: List<WebList>, yaml: Yaml) {
     Surface {
         LazyColumn {
             for (list in lists) {
@@ -39,16 +41,10 @@ fun EditLists(lists: List<WebList>) {
                     }
                 }
 
-                items(list.transformations.list.size) { tid ->
-                    val transformation = list.transformations.list[tid]
+                items(list.apply.transformations.size) { tid ->
+                    val transformation = list.apply.transformations[tid]
                     Text(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        text = transformation.javaClass.simpleName,
-                        style = MaterialTheme.typography.h6
-                    )
-                    Text(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        text = Yaml.default.encodeToString(transformation),
+                        text = yaml.encodeToString(transformation),
                         style = MaterialTheme.typography.body2
                     )
                 }
@@ -62,7 +58,8 @@ fun EditLists(lists: List<WebList>) {
 fun EditListsPreview() {
     WebListTheme {
         EditLists(
-            MatchTv.sample(0)
+            MatchTv.sample(0),
+            Yaml(configuration = YamlConfiguration(polymorphismStyle = PolymorphismStyle.Property))
         )
     }
 }

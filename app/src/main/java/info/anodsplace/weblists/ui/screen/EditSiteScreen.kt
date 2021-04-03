@@ -14,6 +14,9 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.charleskorn.kaml.PolymorphismStyle
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlConfiguration
 import info.anodsplace.weblists.MainViewModel
 import info.anodsplace.weblists.extensions.isValidUrl
 import info.anodsplace.weblists.rules.WebList
@@ -28,6 +31,7 @@ fun EditSiteScreen(siteId: Long, viewModel: MainViewModel) {
     val document by viewModel.docSource.collectAsState()
     EditSiteLists(
         editSiteState,
+        viewModel.yaml,
         document
     ) { site, lists, loadPreview ->
         viewModel.updateDraft(site, lists, loadPreview)
@@ -37,6 +41,7 @@ fun EditSiteScreen(siteId: Long, viewModel: MainViewModel) {
 @Composable
 fun EditSiteLists(
     webSiteLists: State<WebSiteLists>,
+    yaml: Yaml,
     document: Document? = null,
     onChange: (site: WebSite, lists: List<WebList>, loadDoc: Boolean) -> Unit = { _, _, _ -> }) {
     val site = webSiteLists.value.site
@@ -62,7 +67,7 @@ fun EditSiteLists(
                 }
             } else {
                 PreviewSite(site = site) {
-                    EditLists(lists)
+                    EditLists(lists, yaml)
                 }
             }
         }
@@ -154,10 +159,13 @@ fun DocumentPreview(document: Document? = null) {
 @Composable
 fun EditSitePreview() {
     WebListTheme {
-        EditSiteLists(mutableStateOf(WebSiteLists(
-            WebSite(0, "", ""),
-            listOf()
-        )))
+        EditSiteLists(
+            webSiteLists = mutableStateOf(WebSiteLists(
+                WebSite(0, "", ""),
+                listOf()
+            )),
+            yaml = Yaml(configuration = YamlConfiguration(polymorphismStyle = PolymorphismStyle.Property))
+        )
     }
 }
 
@@ -165,9 +173,12 @@ fun EditSitePreview() {
 @Composable
 fun EditSiteListsPreview() {
     WebListTheme {
-        EditSiteLists(mutableStateOf(WebSiteLists(
-            WebSite(0, "http://sample1", "Sample 1"),
-            listOf()
-        )))
+        EditSiteLists(
+            webSiteLists = mutableStateOf(WebSiteLists(
+                WebSite(0, "http://sample1", "Sample 1"),
+                listOf()
+            )),
+            yaml = Yaml(configuration = YamlConfiguration(polymorphismStyle = PolymorphismStyle.Property))
+        )
     }
 }

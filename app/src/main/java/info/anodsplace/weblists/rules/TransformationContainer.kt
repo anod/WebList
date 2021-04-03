@@ -8,8 +8,10 @@ import kotlinx.serialization.json.Json
 
 @Serializable
 class TransformationContainer(
-    var list: List<ElementTransformation>
+    val transformations: List<ElementTransformation>
 ) {
+    constructor(single: ElementTransformation) : this(listOf(single))
+
     class Converters {
         @TypeConverter
         fun decode(value: String): TransformationContainer {

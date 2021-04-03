@@ -2,6 +2,9 @@ package info.anodsplace.weblists
 
 import android.app.Application
 import android.content.Context
+import com.charleskorn.kaml.PolymorphismStyle
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlConfiguration
 import info.anodsplace.weblists.extensions.JsoupClient
 import org.koin.core.context.startKoin
 import org.koin.dsl.bind
@@ -11,6 +14,10 @@ val appModule = module {
     single { AppDatabase.create(get()) }
     single { Preferences(get<Context>()) }
     single { JsoupClient() }
+    single { Yaml(configuration = YamlConfiguration(
+        encodeDefaults = false,
+        polymorphismStyle = PolymorphismStyle.Property
+    )) }
 }
 
 class App: Application() {

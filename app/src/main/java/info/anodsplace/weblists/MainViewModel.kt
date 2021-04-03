@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.charleskorn.kaml.Yaml
 import info.anodsplace.weblists.extensions.JsoupClient
 import info.anodsplace.weblists.extensions.isValidUrl
 import info.anodsplace.weblists.rules.WebList
@@ -32,6 +33,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
     private val db: AppDatabase by inject()
     private val jsoup: JsoupClient by inject()
     val prefs: Preferences by inject()
+    val yaml: Yaml by inject()
     val sites = MutableStateFlow<ContentState>(ContentState.Loading)
     private var draftSite: MutableStateFlow<WebSiteLists>? = null
     val docSource = MutableStateFlow<Document?>(null)

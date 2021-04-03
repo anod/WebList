@@ -1,23 +1,17 @@
 package info.anodsplace.weblists.rules
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.*
-import androidx.compose.ui.text.intl.LocaleList
-import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
+import info.anodsplace.weblists.extensions.ColorAsHexSerializer
 import info.anodsplace.weblists.joinAnnotatedString
 import info.anodsplace.weblists.toAnnotatedString
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.jsoup.nodes.Element
 
 @Serializable
@@ -27,7 +21,7 @@ sealed class ElementTransformation {
 
 object AnnotationAttributes {
     const val tag = "web-list"
-    const val header = "web-list-header"
+    const val header = "header"
 
     fun header(builder: AnnotatedString.Builder) {
         builder.addStringAnnotation(tag, header, 0, 0)
@@ -62,42 +56,42 @@ class ConstTransformation(private val params: Param): ElementTransformation() {
 
     constructor(text: String, spanStyle: SpanStyle) : this(Param(text, StyleParameters(spanStyle)))
 
-    constructor(text: String) : this(Param(text, null))
-
     @Serializable
-    data class Param(val text: String, val spanStyle: StyleParameters? = null)
+    data class Param(val text: String, val style: StyleParameters? = null)
 
     override fun apply(element: Element): List<AnnotatedString> = listOf(
-        params.text.toAnnotatedString(params.spanStyle?.toSpanStyle())
+        params.text.toAnnotatedString(params.style?.toSpanStyle())
     )
 }
 
 @Serializable
 data class StyleParameters @OptIn(ExperimentalUnsignedTypes::class) constructor(
-    val color: ULong? = null,
+    @Serializable(with = ColorAsHexSerializer::class)
+    val color: Color? = null,
     val fontSize: Float? = null,
     val fontWeight: Int? = null,
     val letterSpacing: Float? = null,
-    val background: ULong? = null,
+    @Serializable(with = ColorAsHexSerializer::class)
+    val background: Color? = null,
     val textDecoration: Int? = null,
     val annotations: List<String> = emptyList()
 ) {
     constructor(spanStyle: SpanStyle, annotations: List<String> = emptyList()) : this(
-        color = if (spanStyle.color == Color.Unspecified) null else spanStyle.color.value,
+        color = spanStyle.color,
         fontSize = if (spanStyle.fontSize == TextUnit.Unspecified) null else spanStyle.fontSize.value,
         fontWeight = spanStyle.fontWeight?.weight,
         letterSpacing = if (spanStyle.letterSpacing == TextUnit.Unspecified) null else spanStyle.letterSpacing.value,
-        background = if (spanStyle.background == Color.Unspecified) null else spanStyle.background.value,
+        background = spanStyle.background,
         textDecoration = spanStyle.textDecoration?.mask,
         annotations = annotations
     )
 
     fun toSpanStyle() = SpanStyle(
-        color = if (color == null) Color.Unspecified else Color(color),
+        color = color ?: Color.Unspecified,
         fontSize = fontSize?.sp ?: TextUnit.Unspecified,
         fontWeight = if (fontWeight == null) null else FontWeight(fontWeight),
         letterSpacing = letterSpacing?.sp ?: TextUnit.Unspecified,
-        background = if (background == null) Color.Unspecified else Color(background),
+        background = background ?: Color.Unspecified,
         textDecoration = when(textDecoration) {
             null -> null
             0x0 -> TextDecoration.None
