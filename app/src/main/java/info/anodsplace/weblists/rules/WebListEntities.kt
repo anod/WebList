@@ -37,16 +37,15 @@ data class WebList(
     val isHorizontal: Boolean
 ) {
     constructor(siteId: Long, order: Int, cssQuery: String, transformations: List<ElementTransformation>, isHorizontal: Boolean = false)
-        : this(0, siteId, order, cssQuery, TransformationContainer(transformations.map { it.definition() }), isHorizontal)
+        : this(0, siteId, order, cssQuery, TransformationContainer(transformations), isHorizontal)
 
     constructor(siteId: Long, order: Int, cssQuery: String, transformation: ElementTransformation, isHorizontal: Boolean = false)
-            : this(0, siteId, order, cssQuery, TransformationContainer(listOf(transformation.definition())), isHorizontal)
+            : this(0, siteId, order, cssQuery, TransformationContainer(listOf(transformation)), isHorizontal)
 
     fun apply(elements: Elements): List<AnnotatedString> {
         val result = mutableListOf<AnnotatedString>()
         for (element in elements) {
-            for (def in transformations.list) {
-                val transformation = def.create()
+            for (transformation in transformations.list) {
                 val values = transformation.apply(element)
                 if (transformation is FilterTransformation) {
                     if (values.isEmpty()) {

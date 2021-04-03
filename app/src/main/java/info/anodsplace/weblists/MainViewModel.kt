@@ -28,6 +28,7 @@ sealed class ContentState {
 }
 
 class MainViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
+    var lastError: String = ""
     private val db: AppDatabase by inject()
     private val jsoup: JsoupClient by inject()
     val prefs: Preferences by inject()

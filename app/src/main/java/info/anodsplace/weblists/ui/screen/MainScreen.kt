@@ -1,6 +1,7 @@
 package info.anodsplace.weblists.ui.screen
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -26,13 +27,18 @@ fun MainScreen(viewModel: MainViewModel) {
 
     NavHost(navController, startDestination = Screen.Catalog.route) {
         composable(Screen.Empty) { EmptyContent() }
-        composable(Screen.Error()) { backStackEntry ->
-            ErrorContent(backStackEntry.arguments?.getString("message") ?: "Unexpected error")
+        composable(Screen.Error) {
+            val message = if (viewModel.lastError.isEmpty()) "Unexpected error" else viewModel.lastError
+            Log.e("error", message)
+            ErrorContent(message)
         }
         composable(Screen.Catalog) {
             val state = viewModel.sites.collectAsState(initial = ContentState.Loading)
             when (val c = state.value) {
-                is ContentState.Error -> navController.navigate(Screen.Error(c.message).route)
+                is ContentState.Error -> {
+                    viewModel.lastError = c.message
+                    navController.navigate(Screen.Error)
+                }
                 is ContentState.Catalog -> CatalogContent(c.sites) {
                     navController.navigate(it)
                 }
@@ -40,7 +46,10 @@ fun MainScreen(viewModel: MainViewModel) {
                     viewModel.loadSites()
                     LoadingCatalog()
                 }
-                else -> navController.navigate(Screen.Error("Unknown state $c").route)
+                else -> {
+                    viewModel.lastError = "Unknown state $c"
+                    navController.navigate(Screen.Error)
+                }
             }
         }
         composable(Screen.EditSite()) { backStackEntry ->
@@ -54,7 +63,8 @@ fun MainScreen(viewModel: MainViewModel) {
                 when (val siteValue = siteState.value) {
                     is ContentState.Error -> {
                         viewModel.prefs.lastSiteId = -1
-                        navController.navigate(Screen.Error(siteValue.message).route)
+                        viewModel.lastError = siteValue.message
+                        navController.navigate(Screen.Error)
                     }
                     is ContentState.SiteDefinition -> {
                         viewModel.prefs.lastSiteId = siteId
@@ -68,7 +78,10 @@ fun MainScreen(viewModel: MainViewModel) {
                         }
                     }
                     is ContentState.Loading -> LoadingCatalog()
-                    else -> navController.navigate(Screen.Error("Unknown state $siteState").route)
+                    else -> {
+                        viewModel.lastError = "Unknown state $siteState"
+                        navController.navigate(Screen.Error)
+                    }
                 }
             }
         }

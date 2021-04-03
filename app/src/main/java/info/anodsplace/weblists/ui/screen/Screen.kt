@@ -6,6 +6,9 @@ import androidx.navigation.compose.NamedNavArgument
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.navigate
+import okhttp3.HttpUrl
+import java.net.URLEncoder
+import java.nio.charset.Charset
 
 sealed class Screen(
     val route: String,
@@ -15,6 +18,7 @@ sealed class Screen(
 ) {
     object Empty : Screen("empty")
     object Catalog : Screen("catalog", initial = true)
+    object Error : Screen("error")
 
     class Site(siteId: Long = 0L) : Screen(
         "sites/$siteId",
@@ -33,13 +37,8 @@ sealed class Screen(
         "sites/{siteId}/search",
         arguments = listOf(navArgument("siteId") { type = NavType.LongType })
     )
-
-    class Error(message: String = "") : Screen(
-        "error?message=$message",
-        "error?message={message}",
-        arguments = listOf(navArgument("message") { defaultValue = "Unexpected error" })
-    )
 }
+
 
 fun NavGraphBuilder.composable(screen: Screen, content: @Composable (NavBackStackEntry) -> Unit) {
     composable(

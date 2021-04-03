@@ -13,15 +13,16 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import info.anodsplace.weblists.joinAnnotatedString
 import info.anodsplace.weblists.toAnnotatedString
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jsoup.nodes.Element
 
-interface ElementTransformation {
-    fun apply(element: Element): List<AnnotatedString>
-    fun definition(): TransformationDefinition
+@Serializable
+sealed class ElementTransformation {
+    open fun apply(element: Element): List<AnnotatedString> = emptyList()
 }
 
 object AnnotationAttributes {
@@ -40,34 +41,23 @@ object AnnotationAttributes {
     }
 }
 
-class TextTransformation: ElementTransformation {
+@Serializable
+@SerialName(TextTransformation.type)
+class TextTransformation: ElementTransformation() {
     companion object {
         internal const val type = "text"
-    }
-
-    class Factory : TransformationDefinition.Factory {
-        override fun create(def: TransformationDefinition): ElementTransformation {
-            return TextTransformation()
-        }
     }
 
     override fun apply(element: Element): List<AnnotatedString> {
         return listOf(element.text().toAnnotatedString())
     }
-
-    override fun definition() = TransformationDefinition(type, "{}")
 }
 
-class ConstTransformation(private val params: Param): ElementTransformation {
+@Serializable
+@SerialName(ConstTransformation.type)
+class ConstTransformation(private val params: Param): ElementTransformation() {
     companion object {
         const val type = "const"
-    }
-
-    class Factory : TransformationDefinition.Factory {
-        override fun create(def: TransformationDefinition): ElementTransformation {
-            val param: Param = Json.decodeFromString(def.parameter)
-            return ConstTransformation(param)
-        }
     }
 
     constructor(text: String, spanStyle: SpanStyle) : this(Param(text, StyleParameters(spanStyle)))
@@ -80,8 +70,6 @@ class ConstTransformation(private val params: Param): ElementTransformation {
     override fun apply(element: Element): List<AnnotatedString> = listOf(
         params.text.toAnnotatedString(params.spanStyle?.toSpanStyle())
     )
-
-    override fun definition() = TransformationDefinition(type, Json.encodeToString(params))
 }
 
 @Serializable
@@ -120,16 +108,11 @@ data class StyleParameters @OptIn(ExperimentalUnsignedTypes::class) constructor(
     )
 }
 
-class StyleTransformation(private val params: StyleParameters): ElementTransformation {
+@Serializable
+@SerialName(StyleTransformation.type)
+class StyleTransformation(private val params: StyleParameters): ElementTransformation() {
     companion object {
         internal const val type = "style"
-    }
-
-    class Factory : TransformationDefinition.Factory {
-        override fun create(def: TransformationDefinition): ElementTransformation {
-            val param: StyleParameters = Json.decodeFromString(def.parameter)
-            return StyleTransformation(param)
-        }
     }
 
     constructor(spanStyle: SpanStyle) : this(StyleParameters(spanStyle))
@@ -165,77 +148,56 @@ class StyleTransformation(private val params: StyleParameters): ElementTransform
             toAnnotatedString()
         })
     }
-
-    override fun definition() = TransformationDefinition(type, Json.encodeToString(params))
 }
 
-class ConcatTransformation(private val params: Param): ElementTransformation {
+@Serializable
+@SerialName(ConcatTransformation.type)
+class ConcatTransformation(private val params: Param): ElementTransformation() {
     companion object {
         internal const val type = "concat"
     }
 
-    class Factory : TransformationDefinition.Factory {
-        override fun create(def: TransformationDefinition): ElementTransformation {
-            val param: Param = Json.decodeFromString(def.parameter)
-            return ConcatTransformation(param)
-        }
-    }
-
     @Serializable
-    data class Param(val values: List<TransformationDefinition>, val separator: String )
+    data class Param(val values: List<ElementTransformation>, val separator: String )
 
     constructor(values: List<ElementTransformation>, separator: String = "\n")
-            : this(Param(values.map { it.definition() }, separator))
+            : this(Param(values, separator))
 
     override fun apply(element: Element): List<AnnotatedString> {
-        return listOf(params.values.flatMap { it.create().apply(element) }.joinAnnotatedString(params.separator))
+        return listOf(params.values.flatMap { it.apply(element) }.joinAnnotatedString(params.separator))
     }
-
-    override fun definition() = TransformationDefinition(type, Json.encodeToString(params))
 }
 
-class CssTransformation(private val params: Param): ElementTransformation {
+@Serializable
+@SerialName(CssTransformation.type)
+class CssTransformation(private val params: Param): ElementTransformation() {
     companion object {
         internal const val type = "css"
     }
 
-    class Factory : TransformationDefinition.Factory {
-        override fun create(def: TransformationDefinition): ElementTransformation {
-            val param: Param = Json.decodeFromString(def.parameter)
-            return CssTransformation(param)
-        }
-    }
+    constructor(cssQuery: String) : this(Param(cssQuery, TextTransformation()))
 
-    constructor(cssQuery: String) : this(Param(cssQuery, TextTransformation().definition()))
-
-    constructor(cssQuery: String, transformation: () -> ElementTransformation) : this(Param(cssQuery, transformation().definition()))
+    constructor(cssQuery: String, transformation: () -> ElementTransformation) : this(Param(cssQuery, transformation()))
 
     @Serializable
-    data class Param(val cssQuery: String, val transformation: TransformationDefinition)
+    data class Param(val cssQuery: String, val transformation: ElementTransformation)
 
     override fun apply(element: Element): List<AnnotatedString> {
         val result = mutableListOf<AnnotatedString>()
         val elements = element.select(params.cssQuery)
-        val transformation = params.transformation.create()
+        val transformation = params.transformation
         for (current in elements) {
             result.addAll(transformation.apply(current))
         }
         return result
     }
-
-    override fun definition() = TransformationDefinition(type, Json.encodeToString(params))
 }
 
-class FilterTransformation(private val params: Param): ElementTransformation {
+@Serializable
+@SerialName(FilterTransformation.type)
+class FilterTransformation(private val params: Param): ElementTransformation() {
     companion object {
         internal const val type = "filter"
-    }
-
-    class Factory : TransformationDefinition.Factory {
-        override fun create(def: TransformationDefinition): ElementTransformation {
-            val param: Param = Json.decodeFromString(def.parameter)
-            return FilterTransformation(param)
-        }
     }
 
     constructor(cssQuery: String, values: List<String>, excludes: Boolean)
@@ -253,6 +215,4 @@ class FilterTransformation(private val params: Param): ElementTransformation {
         }
         return if (filter) emptyList() else listOf(text.toAnnotatedString())
     }
-
-    override fun definition() = TransformationDefinition(type, Json.encodeToString(params))
 }
