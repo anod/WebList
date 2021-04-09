@@ -10,7 +10,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.WebList"
-        android:name="info.anodsplace.weblists.App">
+        android:name="info.anodsplace.weblists.WebListsApp">
         <activity
             android:name=".MainActivity"
             android:exported="true"

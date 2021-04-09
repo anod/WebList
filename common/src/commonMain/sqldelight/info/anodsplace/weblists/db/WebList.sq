@@ -1,0 +1,19 @@
+CREATE TABLE `DbWebList` (
+    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    `siteId` INTEGER NOT NULL,
+    `order` INTEGER NOT NULL,
+    `cssQuery` TEXT NOT NULL,
+    `horizontal` INTEGER NOT NULL,
+    `apply` TEXT NOT NULL,
+    FOREIGN KEY(`siteId`) REFERENCES `DbWebSite`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE INDEX `index_web_list_siteId` ON `DbWebList` (`siteId`);
+
+insert:
+INSERT INTO DbWebList (`siteId`, `order`, `cssQuery`, `horizontal`, `apply`) VALUES (?, ?, ?, ?, ?);
+
+loadBySiteId:
+SELECT * FROM DbWebList WHERE siteId IN (:siteId);
+
+lastInsertId:
+SELECT last_insert_rowid();

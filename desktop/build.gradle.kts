@@ -8,6 +8,9 @@ plugins {
 }
 
 kotlin {
+    jvm {
+        withJava()
+    }
     sourceSets {
         named("jvmMain") {
             dependencies {
@@ -15,9 +18,6 @@ kotlin {
                 implementation(project(":common"))
             }
         }
-    }
-    jvm {
-        withJava()
     }
 }
 

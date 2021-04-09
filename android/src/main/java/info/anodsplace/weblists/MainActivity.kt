@@ -7,14 +7,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
-import info.anodsplace.weblists.backup.Backup
 import info.anodsplace.weblists.backup.CreateDocument
+import info.anodsplace.weblists.common.ui.theme.WebListTheme
 import info.anodsplace.weblists.ui.LocalBackPressedDispatcher
 import info.anodsplace.weblists.ui.screen.MainScreen
-import info.anodsplace.weblists.ui.theme.WebListTheme
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -48,7 +47,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CompositionLocalProvider(LocalBackPressedDispatcher provides this) {
-                WebListTheme {
+                WebListTheme(darkTheme = isSystemInDarkTheme()) {
                     MainScreen(viewModel)
                 }
             }

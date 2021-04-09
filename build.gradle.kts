@@ -15,6 +15,7 @@ buildscript {
         // __KOTLIN_COMPOSE_VERSION__
         classpath(kotlin("gradle-plugin", version = "1.4.32"))
         classpath("org.jetbrains.kotlin:kotlin-serialization:1.4.32")
+        classpath("com.squareup.sqldelight:gradle-plugin:1.4.4")
     }
 }
 

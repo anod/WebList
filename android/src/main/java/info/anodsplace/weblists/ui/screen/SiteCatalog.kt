@@ -17,8 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import info.anodsplace.weblists.R
-import info.anodsplace.weblists.rules.WebSite
-import info.anodsplace.weblists.ui.theme.WebListTheme
+import info.anodsplace.weblists.common.db.WebSite
+import info.anodsplace.weblists.common.ui.theme.WebListTheme
 
 @Composable
 fun LoadingCatalog() {

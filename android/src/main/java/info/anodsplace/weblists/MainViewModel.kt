@@ -1,5 +1,7 @@
 package info.anodsplace.weblists
 
+import HtmlClient
+import HtmlDocument
 import android.app.Application
 import android.net.Uri
 import android.util.Log
@@ -7,16 +9,16 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.charleskorn.kaml.Yaml
 import info.anodsplace.weblists.backup.Backup
-import info.anodsplace.weblists.extensions.JsoupClient
+import info.anodsplace.weblists.common.db.WebList
+import info.anodsplace.weblists.common.db.WebSection
+import info.anodsplace.weblists.common.db.WebSite
+import info.anodsplace.weblists.common.db.WebSiteLists
+import info.anodsplace.weblists.common.db.AppDatabase
 import info.anodsplace.weblists.extensions.isValidUrl
-import info.anodsplace.weblists.rules.WebList
-import info.anodsplace.weblists.rules.WebSection
-import info.anodsplace.weblists.rules.WebSite
-import info.anodsplace.weblists.rules.WebSiteLists
+import io.ktor.client.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import org.jsoup.nodes.Document
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -31,20 +33,20 @@ sealed class ContentState {
 class MainViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
     var lastError: String = ""
     private val db: AppDatabase by inject()
-    private val jsoup: JsoupClient by inject()
+    private val jsoup: HtmlClient by inject()
     private val backup: Backup by inject()
     val prefs: Preferences by inject()
     val yaml: Yaml by inject()
     val sites = MutableStateFlow<ContentState>(ContentState.Loading)
     private var draftSite: MutableStateFlow<WebSiteLists?> = MutableStateFlow(null)
-    val docSource = MutableStateFlow<Document?>(null)
+    val docSource = MutableStateFlow<HtmlDocument?>(null)
     var currentSections: ContentState.SiteSections? = null
 
     fun loadSites() {
         viewModelScope.launch {
             try {
-                db.webSites().preload()
-                sites.emit(ContentState.Catalog(db.webSites().loadSites()))
+                db.preload()
+                sites.emit(ContentState.Catalog(db.loadSites()))
             } catch (e: Exception) {
                 sites.emit(ContentState.Error(e.message ?: "Unexpected error"))
             }
@@ -55,7 +57,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
         currentSections = null
         emit(ContentState.Loading)
         try {
-            val webSiteLists = db.webSites().loadById(siteId)
+            val webSiteLists = db.loadSiteListsById(siteId)
             emit(ContentState.SiteDefinition(webSiteLists.site))
             val doc = jsoup.loadDoc(webSiteLists.site.url)
             val sections = webSiteLists.apply(doc)
@@ -96,7 +98,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
         }
         viewModelScope.launch {
             try {
-                val webSiteLists = db.webSites().loadById(siteId)
+                val webSiteLists = db.loadSiteListsById(siteId)
                 draftSite.emit(webSiteLists)
                 if (webSiteLists.site.url.isValidUrl()) {
                     val doc = jsoup.loadDoc(webSiteLists.site.url)

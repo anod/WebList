@@ -1,0 +1,21 @@
+
+CREATE TABLE `DbWebSite` (
+    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    `url` TEXT NOT NULL,
+    `title` TEXT NOT NULL
+);
+
+loadById:
+SELECT * FROM DbWebSite WHERE id IN (:siteId);
+
+loadSites:
+SELECT * FROM DbWebSite;
+
+insert:
+INSERT INTO DbWebSite (`url`, `title`) VALUES (?, ?);
+
+deleteSites:
+DELETE FROM DbWebSite;
+
+lastInsertId:
+SELECT last_insert_rowid();

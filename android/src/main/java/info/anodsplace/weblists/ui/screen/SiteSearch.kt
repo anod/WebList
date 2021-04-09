@@ -26,9 +26,9 @@ import androidx.compose.ui.unit.dp
 import info.anodsplace.weblists.R
 import info.anodsplace.weblists.asListHeader
 import info.anodsplace.weblists.findAll
-import info.anodsplace.weblists.rules.AnnotationAttributes
-import info.anodsplace.weblists.rules.WebSection
-import info.anodsplace.weblists.ui.theme.WebListTheme
+import info.anodsplace.weblists.common.rules.AnnotationAttributes
+import info.anodsplace.weblists.common.db.WebSection
+import info.anodsplace.weblists.common.ui.theme.WebListTheme
 
 typealias ScrollToPosition = Triple<Int, Int, AnnotatedString>
 

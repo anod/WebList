@@ -1,5 +1,6 @@
 package info.anodsplace.weblists.backup
 
+import StreamWriter
 import android.content.Context
 import android.net.Uri
 import android.util.Log
@@ -11,14 +12,11 @@ import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.OutputStream
-import java.io.OutputStreamWriter
 
 class Backup(val context: Context) {
-    private val mutex = Mutex()
 
     companion object {
         const val AUTHORITY = BuildConfig.APPLICATION_ID + ".fileprovider"
-
         const val NO_RESULT = -1
         const val RESULT_DONE = 0
         const val ERROR_FILE_READ = 3
@@ -39,12 +37,13 @@ class Backup(val context: Context) {
         }
     }
 
-    private suspend fun writeToStream(outputStream: OutputStream, content: String): Int {
+    private val mutex = Mutex()
+
+
+    suspend fun writeToStream(outputStream: OutputStream, content: String): Int {
         return try {
             mutex.withLock {
-                val writer = OutputStreamWriter(outputStream)
-                writer.write(content)
-                writer.close()
+                StreamWriter(outputStream).write(content)
             }
             RESULT_DONE
         } catch (e: IOException) {

@@ -19,7 +19,7 @@ import androidx.navigation.compose.*
 import info.anodsplace.weblists.ContentState
 import info.anodsplace.weblists.MainViewModel
 import info.anodsplace.weblists.R
-import info.anodsplace.weblists.ui.theme.WebListTheme
+import info.anodsplace.weblists.common.ui.theme.WebListTheme
 
 @Composable
 fun MainScreen(viewModel: MainViewModel) {

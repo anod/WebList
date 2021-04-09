@@ -1,5 +1,6 @@
 package info.anodsplace.weblists.ui.screen
 
+import HtmlDocument
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -9,11 +10,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Backup
 import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.CloudUpload
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
@@ -27,15 +26,14 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import info.anodsplace.weblists.MainViewModel
 import info.anodsplace.weblists.R
-import info.anodsplace.weblists.rules.WebList
-import info.anodsplace.weblists.rules.WebSite
-import info.anodsplace.weblists.rules.WebSiteLists
-import info.anodsplace.weblists.samples.MatchTv
-import info.anodsplace.weblists.ui.theme.WebListTheme
+import info.anodsplace.weblists.common.db.WebList
+import info.anodsplace.weblists.common.db.WebSite
+import info.anodsplace.weblists.common.db.WebSiteLists
+import info.anodsplace.weblists.common.samples.MatchTv
+import info.anodsplace.weblists.common.ui.theme.WebListTheme
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
-import org.jsoup.nodes.Document
 
 @Composable
 fun EditSiteScreen(siteId: Long, viewModel: MainViewModel, navigate: (Screen) -> Unit) {
@@ -78,7 +76,7 @@ fun EditSiteLists(
     siteId: Long,
     webSiteLists: State<WebSiteLists?>,
     yaml: Yaml,
-    document: Document? = null,
+    document: HtmlDocument? = null,
     onChange: (site: WebSite, lists: List<WebList>, loadDoc: Boolean) -> Unit = { _, _, _ -> },
     navigate: (Screen) -> Unit = { }
 ) {
@@ -149,7 +147,7 @@ fun EditTopBar(siteId: Long, title: String, navigate: (Screen) -> Unit) {
 }
 
 @Composable
-fun DocumentPreview(document: Document? = null) {
+fun DocumentPreview(document: HtmlDocument? = null) {
     OutlinedTextField(
         modifier = Modifier
             .fillMaxWidth()
@@ -165,10 +163,12 @@ fun EditSiteListsPreview() {
     WebListTheme {
         EditSiteLists(
             siteId = 0,
-            webSiteLists = mutableStateOf(WebSiteLists(
+            webSiteLists = mutableStateOf(
+                WebSiteLists(
                 WebSite(0, "http://sample1", "Sample 1"),
                 MatchTv.sample(0)
-            )),
+            )
+            ),
             yaml = Yaml(configuration = YamlConfiguration(polymorphismStyle = PolymorphismStyle.Property)),
             onChange = { _, _, _ -> }
         ) { }
