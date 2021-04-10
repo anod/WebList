@@ -2,13 +2,21 @@ import android.content.Context
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
+import info.anodsplace.weblists.common.JsoupClient
 import info.anodsplace.weblists.db.WebListsDb.Companion.Schema
 import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.utils.io.charsets.*
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
+import java.io.InputStream
 import java.io.OutputStream
 import java.io.OutputStreamWriter
+import kotlin.text.Charsets
 
 actual fun getPlatformName(): String = "Android"
 
@@ -31,7 +39,7 @@ actual class HtmlDocument(private val doc: Document) {
 }
 
 actual class HtmlClientFactory {
-    actual fun create(): HtmlClient = JsoupClientAndroid(HttpClient())
+    actual fun create(): HtmlClient = JsoupClient(HttpClient())
 }
 
 actual class HtmlElement(private val el: Element) {
@@ -56,5 +64,14 @@ actual class StreamWriter(private val outputStream: OutputStream) {
         val writer = OutputStreamWriter(outputStream)
         writer.write(content)
         writer.close()
+    }
+}
+
+actual class JsoupParser {
+    actual suspend fun parse(response: HttpResponse, baseUri: String): HtmlDocument {
+        val charset: Charset = response.contentType()?.charset() ?: Charsets.UTF_8
+        val inputStream = response.receive<InputStream>()
+        val doc = Jsoup.parse(inputStream, charset.name, baseUri).normalise()
+        return HtmlDocument(doc)
     }
 }

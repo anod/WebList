@@ -3,6 +3,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import com.squareup.sqldelight.db.SqlDriver
+import io.ktor.client.statement.*
 
 @Composable
 fun App() {
@@ -28,6 +29,10 @@ expect class DatabaseDriverFactory {
 
 interface HtmlClient{
     suspend fun loadDoc(url: String): HtmlDocument
+}
+
+expect class JsoupParser() {
+    suspend fun parse(response: HttpResponse, baseUri: String): HtmlDocument
 }
 
 expect class HtmlElement {
