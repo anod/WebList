@@ -1,4 +1,3 @@
-import android.graphics.Color
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import info.anodsplace.weblists.common.JsoupClient

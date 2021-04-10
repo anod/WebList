@@ -7,17 +7,17 @@ plugins {
     id("com.squareup.sqldelight")
     id("kotlinx-serialization")
 }
-
-android {
-    configurations {
-//        create("androidTestApi")
-//        create("androidTestDebugApi")
-//        create("androidTestReleaseApi")
-        create("testApi")
-        create("testDebugApi")
-        create("testReleaseApi")
-    }
-}
+//
+//android {
+//    configurations {
+////        create("androidTestApi")
+////        create("androidTestDebugApi")
+////        create("androidTestReleaseApi")
+//        create("testApi")
+//        create("testDebugApi")
+//        create("testReleaseApi")
+//    }
+//}
 
 kotlin {
     android()
@@ -54,6 +54,7 @@ kotlin {
         }
         named("desktopMain") {
             dependencies {
+                implementation("org.jsoup:jsoup:1.13.1")
                 implementation("io.ktor:ktor-client-java:1.5.3")
                 implementation("com.squareup.sqldelight:sqlite-driver:1.4.4")
             }
@@ -83,9 +84,9 @@ android {
         }
     }
 
-    lint {
-        isAbortOnError = false
-    }
+//    lintOptions {
+//        isAbortOnError = false
+//    }
 }
 
 sqldelight {
