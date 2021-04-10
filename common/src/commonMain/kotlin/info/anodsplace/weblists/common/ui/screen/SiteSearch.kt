@@ -1,6 +1,5 @@
-package info.anodsplace.weblists.ui.screen
+package info.anodsplace.weblists.common.ui.screen
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -18,17 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import info.anodsplace.weblists.R
-import info.anodsplace.weblists.asListHeader
-import info.anodsplace.weblists.findAll
-import info.anodsplace.weblists.common.rules.AnnotationAttributes
+import info.anodsplace.weblists.common.StringProvider
 import info.anodsplace.weblists.common.db.WebSection
-import info.anodsplace.weblists.common.ui.theme.WebListTheme
+import info.anodsplace.weblists.common.rules.AnnotationAttributes
+import info.anodsplace.weblists.findAll
 
 typealias ScrollToPosition = Triple<Int, Int, AnnotatedString>
 
@@ -41,6 +36,7 @@ sealed class SearchAction {
 fun SiteSearch(
     sections: List<WebSection>,
     searchValue: MutableState<String> = mutableStateOf(""),
+    strings: StringProvider,
     action: (SearchAction) -> Unit = { }
 ) {
     val headers = headers(sections)
@@ -73,17 +69,19 @@ fun SiteSearch(
                     searchValue.value = value
                     searchResults.value = search(searchValue, sections)
                     if (searchResults.value.isNotEmpty()) {
-                        action(SearchAction.ScrollTo(
-                            searchResults.value.first(),
-                            false
-                        ))
+                        action(
+                            SearchAction.ScrollTo(
+                                searchResults.value.first(),
+                                false
+                            )
+                        )
                     }
                 },
-                placeholder = { Text(text = stringResource(R.string.find_text)) },
+                placeholder = { Text(text = strings.findText) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Search,
-                        contentDescription = stringResource(R.string.find_text)
+                        contentDescription = strings.findText
                     )
                 },
                 trailingIcon = {
@@ -108,7 +106,7 @@ fun SiteSearch(
                             }) {
                                 Icon(
                                     imageVector = Icons.Filled.KeyboardArrowDown,
-                                    contentDescription = stringResource(R.string.next_result)
+                                    contentDescription = strings.nextResult
                                 )
                             }
                             TextButton(onClick = {
@@ -126,7 +124,7 @@ fun SiteSearch(
                             }) {
                                 Icon(
                                     imageVector = Icons.Filled.KeyboardArrowUp,
-                                    contentDescription = stringResource(R.string.previous_result)
+                                    contentDescription = strings.previousResult
                                 )
                             }
                         }
@@ -212,82 +210,6 @@ fun iterate(
                 row++
             }
         }
-    }
-}
-
-@Preview(
-    showBackground = true,
-    backgroundColor = android.graphics.Color.MAGENTA.toLong(),
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-@Composable
-fun SiteSearchPreview() {
-    WebListTheme {
-        SiteSearch(
-            sections = listOf(
-                WebSection(
-                    true, listOf(
-                        AnnotatedString("Banana").asListHeader(),
-                        AnnotatedString("Blackcurrant"),
-                        AnnotatedString("Blueberry").asListHeader(),
-                        AnnotatedString("Chili pepper"),
-                        AnnotatedString("Cranberry"),
-                    )
-                ),
-                WebSection(
-                    false, listOf(
-                        AnnotatedString("Eggplant"),
-                        AnnotatedString("Gooseberry").asListHeader(),
-                        AnnotatedString("Grape"),
-                        AnnotatedString("Guava"),
-                        AnnotatedString("Kiwifruit").asListHeader(),
-                        AnnotatedString("Lucuma"),
-                        AnnotatedString("Pomegranate"),
-                        AnnotatedString("Redcurrant"),
-                        AnnotatedString("Tomato")
-                    )
-                )
-            ),
-            searchValue = mutableStateOf("rry")
-        ) { }
-    }
-}
-
-@Preview(
-    showBackground = true,
-    backgroundColor = android.graphics.Color.MAGENTA.toLong(),
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
-@Composable
-fun SiteSearchLigthPreview() {
-    WebListTheme {
-        SiteSearch(
-            sections = listOf(
-                WebSection(
-                    true, listOf(
-                        AnnotatedString("Banana").asListHeader(),
-                        AnnotatedString("Blackcurrant"),
-                        AnnotatedString("Blueberry").asListHeader(),
-                        AnnotatedString("Chili pepper"),
-                        AnnotatedString("Cranberry"),
-                    )
-                ),
-                WebSection(
-                    false, listOf(
-                        AnnotatedString("Eggplant"),
-                        AnnotatedString("Gooseberry").asListHeader(),
-                        AnnotatedString("Grape"),
-                        AnnotatedString("Guava"),
-                        AnnotatedString("Kiwifruit").asListHeader(),
-                        AnnotatedString("Lucuma"),
-                        AnnotatedString("Pomegranate"),
-                        AnnotatedString("Redcurrant"),
-                        AnnotatedString("Tomato")
-                    )
-                )
-            ),
-            searchValue = mutableStateOf("rry")
-        ) { }
     }
 }
 

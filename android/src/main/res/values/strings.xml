@@ -7,4 +7,6 @@
     <string name="back_to_catalog">Back to catalog</string>
     <string name="search">Search</string>
     <string name="no_lists_found">No lists were found</string>
+    <string name="import_button">Import</string>
+    <string name="export">Export</string>
 </resources>

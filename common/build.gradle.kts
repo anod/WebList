@@ -29,14 +29,15 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
+                api(compose.materialIconsExtended)
+                api(compose.ui)
 
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
-
-                implementation("org.jsoup:jsoup:1.13.1")
-                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
                 api("com.charleskorn.kaml:kaml:0.29.0")
                 api("io.insert-koin:koin-core:3.0.1-beta-2")
-                api("io.ktor:ktor-client-core:1.5.3")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
+
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
+                implementation("io.ktor:ktor-client-core:1.5.3")
                 implementation("com.squareup.sqldelight:runtime:1.4.4")
                 implementation("com.squareup.sqldelight:coroutines-extensions:1.4.4")
             }
@@ -45,6 +46,8 @@ kotlin {
             dependencies {
                 api("androidx.appcompat:appcompat:1.3.0-rc01")
                 api("androidx.core:core-ktx:1.3.2")
+
+                implementation("org.jsoup:jsoup:1.13.1")
                 implementation("com.squareup.sqldelight:android-driver:1.4.4")
                 implementation("io.ktor:ktor-client-android:1.5.3")
             }

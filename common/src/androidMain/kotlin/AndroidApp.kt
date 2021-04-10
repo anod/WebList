@@ -12,7 +12,7 @@ import java.io.OutputStreamWriter
 
 actual fun getPlatformName(): String = "Android"
 
-actual fun formatString(format: String, vararg args: Any?): String = String.format(format, args)
+actual fun formatString(format: String, vararg args: Any?): String = String.format(format, *args)
 
 actual class DatabaseDriverFactory(private val context: Context) {
     actual fun createDriver(): SqlDriver {

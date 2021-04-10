@@ -1,4 +1,4 @@
-package info.anodsplace.weblists.ui.screen
+package info.anodsplace.weblists.common.ui.screen
 
 import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -13,10 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import info.anodsplace.weblists.R
+import info.anodsplace.weblists.common.StringProvider
 import info.anodsplace.weblists.common.db.WebSite
 import info.anodsplace.weblists.common.ui.theme.WebListTheme
 
@@ -29,7 +27,7 @@ fun LoadingCatalog() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun CatalogContent(sites: List<WebSite>, navigate: (Screen) -> Unit) {
+fun CatalogContent(sites: List<WebSite>, strings: StringProvider, navigate: (Screen) -> Unit) {
     MainSurface {
         Column(
             modifier = Modifier
@@ -40,7 +38,7 @@ fun CatalogContent(sites: List<WebSite>, navigate: (Screen) -> Unit) {
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 8.dp)
                     .clip(RoundedCornerShape(4.dp)),
-                title = { Text(text = stringResource(R.string.app_name)) },
+                title = { Text(text = strings.appName) },
                 backgroundColor = MaterialTheme.colors.primary
             )
 
@@ -53,7 +51,7 @@ fun CatalogContent(sites: List<WebSite>, navigate: (Screen) -> Unit) {
                 }
 
                 item {
-                    SiteButton(title = stringResource(R.string.add_new)) {
+                    SiteButton(title = strings.addNew) {
                         navigate(Screen.EditSite())
                     }
                 }
@@ -85,18 +83,5 @@ fun SiteButton(title: String, onClick: () -> Unit) {
                 .align(Alignment.BottomEnd)
                 .padding(8.dp)
         )
-    }
-}
-
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun ListPreview() {
-    WebListTheme {
-        CatalogContent(
-            listOf(
-                WebSite(0, "http://sample1", "Sample 1"),
-                WebSite(1, "http://sample2", "Sample 2")
-            )
-        ) { }
     }
 }

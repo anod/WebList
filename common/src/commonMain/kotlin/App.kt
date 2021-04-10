@@ -43,6 +43,7 @@ expect class HtmlDocument {
     fun body(): HtmlElement
     fun title(): String
 }
+
 expect class HtmlClientFactory {
     fun create(): HtmlClient
 }

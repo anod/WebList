@@ -1,7 +1,6 @@
-package info.anodsplace.weblists.ui.screen
+package info.anodsplace.weblists.common.ui.screen
 
 import HtmlDocument
-import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,34 +8,28 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.CloudUpload
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.charleskorn.kaml.PolymorphismStyle
 import com.charleskorn.kaml.Yaml
-import com.charleskorn.kaml.YamlConfiguration
-import info.anodsplace.weblists.MainViewModel
-import info.anodsplace.weblists.R
+import info.anodsplace.weblists.common.AppViewModel
+import info.anodsplace.weblists.common.StringProvider
 import info.anodsplace.weblists.common.db.WebList
 import info.anodsplace.weblists.common.db.WebSite
 import info.anodsplace.weblists.common.db.WebSiteLists
-import info.anodsplace.weblists.common.samples.MatchTv
-import info.anodsplace.weblists.common.ui.theme.WebListTheme
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 
 @Composable
-fun EditSiteScreen(siteId: Long, viewModel: MainViewModel, navigate: (Screen) -> Unit) {
+fun EditSiteScreen(siteId: Long, viewModel: AppViewModel, strings: StringProvider, navigate: (Screen) -> Unit) {
     val editSiteState = remember { viewModel.loadDraft(siteId) }.collectAsState()
     val document by viewModel.docSource.collectAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -45,6 +38,7 @@ fun EditSiteScreen(siteId: Long, viewModel: MainViewModel, navigate: (Screen) ->
         siteId,
         editSiteState,
         viewModel.yaml,
+        strings,
         document,
         { site, lists, loadPreview ->
             viewModel.updateDraft(site, lists, loadPreview)
@@ -76,6 +70,7 @@ fun EditSiteLists(
     siteId: Long,
     webSiteLists: State<WebSiteLists?>,
     yaml: Yaml,
+    strings: StringProvider,
     document: HtmlDocument? = null,
     onChange: (site: WebSite, lists: List<WebList>, loadDoc: Boolean) -> Unit = { _, _, _ -> },
     navigate: (Screen) -> Unit = { }
@@ -92,6 +87,7 @@ fun EditSiteLists(
             EditTopBar(
                 siteId = siteId,
                 title = webSiteLists.value?.site?.title ?: "",
+                strings = strings
             ) {
                 when (it) {
                     is Screen.Export -> {
@@ -123,7 +119,7 @@ val Highlight: VisualTransformation = VisualTransformation { text ->
 }
 
 @Composable
-fun EditTopBar(siteId: Long, title: String, navigate: (Screen) -> Unit) {
+fun EditTopBar(siteId: Long, title: String, strings: StringProvider, navigate: (Screen) -> Unit) {
     TopAppBar(
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 8.dp)
@@ -131,16 +127,16 @@ fun EditTopBar(siteId: Long, title: String, navigate: (Screen) -> Unit) {
         title = { Text(text = title) },
         navigationIcon = {
             IconButton(onClick = { if (siteId == 0L) navigate(Screen.Catalog) else navigate(Screen.Site(siteId)) }) {
-                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = stringResource(R.string.back_to_catalog))
+                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = strings.backToCatalog)
             }
         },
         backgroundColor = MaterialTheme.colors.primary,
         actions = {
             IconButton(onClick = { navigate(Screen.Export(siteId)) }) {
-                Icon(imageVector = Icons.Outlined.CloudUpload, contentDescription = stringResource(R.string.search))
+                Icon(imageVector = Icons.Outlined.CloudUpload, contentDescription = strings.export)
             }
             IconButton(onClick = { navigate(Screen.Import(siteId))}) {
-                Icon(imageVector = Icons.Outlined.CloudDownload, contentDescription = stringResource(R.string.search))
+                Icon(imageVector = Icons.Outlined.CloudDownload, contentDescription = strings.import)
             }
         }
     )
@@ -155,22 +151,4 @@ fun DocumentPreview(document: HtmlDocument? = null) {
         value = document?.body()?.toString() ?: "",
         onValueChange = { }
     )
-}
-
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun EditSiteListsPreview() {
-    WebListTheme {
-        EditSiteLists(
-            siteId = 0,
-            webSiteLists = mutableStateOf(
-                WebSiteLists(
-                WebSite(0, "http://sample1", "Sample 1"),
-                MatchTv.sample(0)
-            )
-            ),
-            yaml = Yaml(configuration = YamlConfiguration(polymorphismStyle = PolymorphismStyle.Property)),
-            onChange = { _, _, _ -> }
-        ) { }
-    }
 }

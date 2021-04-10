@@ -8,6 +8,7 @@ import com.charleskorn.kaml.PolymorphismStyle
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import info.anodsplace.weblists.backup.Backup
+import info.anodsplace.weblists.common.AppPreferences
 import info.anodsplace.weblists.common.db.AppDatabase
 import info.anodsplace.weblists.db.WebListsDb
 import org.koin.core.context.startKoin
@@ -19,7 +20,7 @@ val appModule = module {
         val sqlDriver = DatabaseDriverFactory(get()).createDriver()
         AppDatabase(WebListsDb(sqlDriver))
     }
-    single { Preferences(get<Context>()) }
+    single<AppPreferences> { Preferences(get<Context>()) }
     single { HtmlClientFactory().create() }
     single { Yaml(configuration = YamlConfiguration(
         encodeDefaults = false,

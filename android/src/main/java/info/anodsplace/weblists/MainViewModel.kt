@@ -9,6 +9,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.charleskorn.kaml.Yaml
 import info.anodsplace.weblists.backup.Backup
+import info.anodsplace.weblists.common.AppPreferences
+import info.anodsplace.weblists.common.AppViewModel
+import info.anodsplace.weblists.common.ContentState
 import info.anodsplace.weblists.common.db.WebList
 import info.anodsplace.weblists.common.db.WebSection
 import info.anodsplace.weblists.common.db.WebSite
@@ -22,30 +25,25 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-sealed class ContentState {
-    object Loading: ContentState()
-    class Catalog(val sites: List<WebSite>): ContentState()
-    class SiteDefinition(val site: WebSite): ContentState()
-    class SiteSections(val site: WebSite, val sections: List<WebSection>): ContentState()
-    class Error(val message: String): ContentState()
-}
-
-class MainViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
-    var lastError: String = ""
+class MainViewModel(application: Application) : AndroidViewModel(application), KoinComponent,
+    AppViewModel {
     private val db: AppDatabase by inject()
     private val jsoup: HtmlClient by inject()
     private val backup: Backup by inject()
-    val prefs: Preferences by inject()
-    val yaml: Yaml by inject()
-    val sites = MutableStateFlow<ContentState>(ContentState.Loading)
     private var draftSite: MutableStateFlow<WebSiteLists?> = MutableStateFlow(null)
-    val docSource = MutableStateFlow<HtmlDocument?>(null)
-    var currentSections: ContentState.SiteSections? = null
 
-    fun loadSites() {
+    override var lastError: String = ""
+    override val prefs: AppPreferences by inject()
+    override val yaml: Yaml by inject()
+    override val sites = MutableStateFlow<ContentState>(ContentState.Loading)
+    override val docSource = MutableStateFlow<HtmlDocument?>(null)
+    override var currentSections: ContentState.SiteSections? = null
+
+    override fun loadSites() {
         viewModelScope.launch {
+            db.preload()
+
             try {
-                db.preload()
                 sites.emit(ContentState.Catalog(db.loadSites()))
             } catch (e: Exception) {
                 sites.emit(ContentState.Error(e.message ?: "Unexpected error"))
@@ -53,7 +51,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
         }
     }
 
-    fun loadSite(siteId: Long): Flow<ContentState> = flow {
+    override fun loadSite(siteId: Long): Flow<ContentState> = flow {
         currentSections = null
         emit(ContentState.Loading)
         try {
@@ -70,7 +68,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
     }
 
     private var docJob: Job? = null
-    fun updateDraft(site: WebSite, lists: List<WebList>, loadPreview: Boolean) {
+    override fun updateDraft(site: WebSite, lists: List<WebList>, loadPreview: Boolean) {
         draftSite.value = WebSiteLists(site, lists)
         if (loadPreview && site.url.isValidUrl()) {
             docJob?.cancel()
@@ -91,7 +89,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
         }
     }
 
-    fun loadDraft(siteId: Long): MutableStateFlow<WebSiteLists?> {
+    override fun loadDraft(siteId: Long): MutableStateFlow<WebSiteLists?> {
         if (siteId == 0L) {
             draftSite.value = WebSiteLists(WebSite(siteId, "", ""), emptyList())
             return draftSite
@@ -113,7 +111,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
 
     val createDocument = MutableSharedFlow<String>()
     private val onExportUri = MutableSharedFlow<Uri?>()
-    fun export(siteId: Long, content: String): Flow<Int> = flow {
+    override fun export(siteId: Long, content: String): Flow<Int> = flow {
         createDocument.emit("export-$siteId.yaml")
         val destUri = onExportUri.first { it != null }!!
         if (destUri != Uri.EMPTY) {

@@ -1,6 +1,5 @@
-package info.anodsplace.weblists.ui.screen
+package info.anodsplace.weblists.common.ui.screen
 
-import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,27 +9,25 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import info.anodsplace.weblists.R
-import info.anodsplace.weblists.findAll
+import info.anodsplace.weblists.common.StringProvider
 import info.anodsplace.weblists.common.db.WebSection
 import info.anodsplace.weblists.common.db.WebSite
-import info.anodsplace.weblists.ui.BackPressHandler
-import info.anodsplace.weblists.common.ui.theme.WebListTheme
+import info.anodsplace.weblists.findAll
 import kotlinx.coroutines.launch
 import java.lang.Integer.min
 
 @Composable
-fun SiteTopBar(site: WebSite, navigate: (Screen) -> Unit) {
+fun SiteTopBar(site: WebSite, strings: StringProvider, navigate: (Screen) -> Unit) {
     TopAppBar(
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 8.dp)
@@ -38,16 +35,16 @@ fun SiteTopBar(site: WebSite, navigate: (Screen) -> Unit) {
         title = { Text(text = site.title) },
         navigationIcon = {
             IconButton(onClick = { navigate(Screen.Catalog) }) {
-                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = stringResource(R.string.back_to_catalog))
+                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = strings.backToCatalog)
             }
         },
         backgroundColor = MaterialTheme.colors.primary,
         actions = {
             IconButton(onClick = { navigate(Screen.SearchSite(site.id)) }) {
-                Icon(imageVector = Icons.Filled.Search, contentDescription = stringResource(R.string.search))
+                Icon(imageVector = Icons.Filled.Search, contentDescription = strings.search)
             }
             IconButton(onClick = { navigate(Screen.EditSite(site.id))}) {
-                Icon(imageVector = Icons.Filled.Edit, contentDescription = stringResource(R.string.search))
+                Icon(imageVector = Icons.Filled.Edit, contentDescription = strings.search)
             }
         }
     )
@@ -59,6 +56,7 @@ fun SiteContent(
     site: WebSite,
     sections: List<WebSection>,
     isLoading: Boolean,
+    strings: StringProvider,
     initialSearch: Boolean = false,
     addBackPressHandler: Boolean = false,
     navigate: (Screen) -> Unit = {}
@@ -74,18 +72,18 @@ fun SiteContent(
             val coroutineScope = rememberCoroutineScope()
 
             if (addBackPressHandler) {
-                BackPressHandler(
-                    onBackPressed = {
-                        showSearch = false
-                    },
-                    enabled = showSearch
-                )
+//                BackPressHandler(
+//                    onBackPressed = {
+//                        showSearch = false
+//                    },
+//                    enabled = showSearch
+//                )
             }
 
             Column {
                 if (showSearch) {
-                    SiteSearch(sections, searchValue = searchValue) {
-                        when(it) {
+                    SiteSearch(sections, searchValue = searchValue, strings = strings) {
+                        when (it) {
                             is SearchAction.ScrollTo -> {
                                 coroutineScope.launch {
                                     if (it.pos.second == 0) {
@@ -105,7 +103,7 @@ fun SiteContent(
                         }
                     }
                 } else {
-                    SiteTopBar(site) { siteAction ->
+                    SiteTopBar(site, strings = strings) { siteAction ->
                         when (siteAction) {
                             is Screen.SearchSite -> {
                                 showSearch = true
@@ -209,51 +207,5 @@ fun matchSubstring(
             )
         }
         toAnnotatedString()
-    }
-}
-
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun DefaultPreview() {
-    WebListTheme {
-        SiteContent(
-            WebSite(0, "url", "Android"),
-            listOf(
-                WebSection(true, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi"))),
-                WebSection(false, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi")))
-            ),
-            isLoading = false
-        ) { }
-    }
-}
-
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Composable
-fun DefaultLightPreview() {
-    WebListTheme {
-        SiteContent(
-            WebSite(0, "url", "Android"),
-            listOf(
-                WebSection(true, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi"))),
-                WebSection(false, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi")))
-            ),
-            isLoading = false
-        ) { }
-    }
-}
-
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun SearchPreview() {
-    WebListTheme {
-        SiteContent(
-            WebSite(0, "url", "Android"),
-            listOf(
-                WebSection(true, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi"))),
-                WebSection(false, listOf(AnnotatedString("Banana"), AnnotatedString("Kiwi")))
-            ),
-            isLoading = false,
-            initialSearch = true
-        ) { }
     }
 }

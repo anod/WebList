@@ -10,19 +10,20 @@ import kotlinx.coroutines.withContext
 class AppDatabase(private val db: WebListsDb) {
     val webSites = db.webListQueries
 
-    private suspend fun insert(site: WebSite, lists: (siteId: Long) -> List<WebList>) = withContext(Dispatchers.Default){
-        db.transaction {
+    private suspend fun insert(site: WebSite, lists: (siteId: Long) -> List<WebList>): Long = withContext(Dispatchers.Default){
+        return@withContext db.transactionWithResult {
             db.webSiteQueries.insert(
                 site.url, site.title
             )
             val siteId = db.webSiteQueries.lastInsertId().executeAsOne()
             val entities = lists(siteId)
             entities.forEach {
-                val transformation = it.apply.toString()
+                val transformation = it.apply.encode()
                 db.webListQueries.insert(
                     it.siteId, it.order.toLong(), it.cssQuery, it.horizontal.toLong(), transformation
                 )
             }
+            return@transactionWithResult siteId
         }
     }
 
