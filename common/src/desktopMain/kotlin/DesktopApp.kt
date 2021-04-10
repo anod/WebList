@@ -18,7 +18,7 @@ import java.lang.IllegalArgumentException
 import kotlin.text.Charsets
 
 actual fun getPlatformName(): String = "Desktop"
-actual fun formatString(format: String, vararg args: Any?): String = String.format(format, args)
+actual fun formatString(format: String, vararg args: Any?): String = String.format(format, *args)
 
 actual class DatabaseDriverFactory {
     actual fun createDriver(): SqlDriver {
@@ -82,4 +82,8 @@ actual class JsoupParser {
         val doc = Jsoup.parse(inputStream, charset.name, baseUri).normalise()
         return HtmlDocument(doc)
     }
+}
+
+actual fun isValidUrl(url: String): Boolean {
+    return url.startsWith("http", ignoreCase = true)
 }

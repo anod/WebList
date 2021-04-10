@@ -50,7 +50,4 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.3.0-alpha06")
     implementation("androidx.navigation:navigation-compose:1.0.0-alpha10")
     implementation("androidx.compose.ui:ui-tooling:1.0.0-beta04")
-
-    implementation("com.squareup.okhttp3:okhttp:4.9.0")
-    implementation("io.ktor:ktor-client-okhttp:1.5.3")
 }

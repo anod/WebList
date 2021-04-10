@@ -1,27 +1,12 @@
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.runtime.*
 import com.squareup.sqldelight.db.SqlDriver
 import io.ktor.client.statement.*
-
-@Composable
-fun App() {
-    var text by remember { mutableStateOf("Hello, World!") }
-
-    MaterialTheme {
-        Button(onClick = {
-            text = "Hello, ${getPlatformName()}"
-        }) {
-            Text(text)
-        }
-    }
-}
+import org.koin.core.context.startKoin
+import org.koin.dsl.KoinAppDeclaration
 
 expect fun getPlatformName(): String
-
 expect fun formatString(format: String, vararg args: Any?): String
 expect fun parseColor(hexStr: String): Int
+expect fun isValidUrl(url: String): Boolean
 
 expect class DatabaseDriverFactory {
     fun createDriver(): SqlDriver

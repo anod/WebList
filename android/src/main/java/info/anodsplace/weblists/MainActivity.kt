@@ -26,11 +26,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         openDocumentLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { destUri ->
-            viewModel.importFrom(destUri)
+            viewModel.importFrom(destUri.toString())
         }
 
         createDocumentLauncher = registerForActivityResult(CreateDocument()) { destUri ->
-            viewModel.exportTo(destUri)
+            viewModel.exportTo(destUri.toString())
         }
 
         lifecycleScope.launch {

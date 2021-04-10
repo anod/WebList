@@ -17,13 +17,13 @@ sealed class Screen(
     object Catalog : Screen("catalog", initial = true)
     object Error : Screen("error")
 
-    class Site(siteId: Long = 0L) : Screen(
+    class Site(val siteId: Long = 0L) : Screen(
         "sites/$siteId",
         "sites/{siteId}",
         arguments = listOf(ScreenArg("siteId", type = Long::class))
     )
 
-    class EditSite(siteId: Long = 0L) : Screen(
+    class EditSite(val siteId: Long = 0L) : Screen(
         "sites/$siteId/edit",
         "sites/{siteId}/edit",
         arguments = listOf(ScreenArg("siteId", type = Long::class))
