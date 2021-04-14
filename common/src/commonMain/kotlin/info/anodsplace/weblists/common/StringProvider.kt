@@ -1,6 +1,5 @@
 package info.anodsplace.weblists.common
 
-
 interface StringProvider {
 
     val appName: String

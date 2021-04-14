@@ -5,13 +5,14 @@ buildscript {
     repositories {
         mavenLocal()
         google()
+        mavenCentral()
         jcenter()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 
     dependencies {
         classpath("org.jetbrains.compose:compose-gradle-plugin:$composeVersion")
-        classpath("com.android.tools.build:gradle:4.1.3")
+        classpath("com.android.tools.build:gradle:7.0.0-alpha14")
         // __KOTLIN_COMPOSE_VERSION__
         classpath(kotlin("gradle-plugin", version = "1.4.32"))
         classpath("org.jetbrains.kotlin:kotlin-serialization:1.4.32")

@@ -1,4 +1,4 @@
-package info.anodsplace.weblists.desktop
+package info.anodsplace.weblists.common
 
 import info.anodsplace.weblists.common.export.Export
 

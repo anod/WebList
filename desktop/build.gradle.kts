@@ -1,34 +1,26 @@
 import org.jetbrains.compose.compose
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
-    kotlin("multiplatform")
-    // kotlin("jvm") doesn't work well in IDEA/AndroidStudio (https://github.com/JetBrains/compose-jb/issues/22)
+    kotlin("jvm") // doesn't work well in IDEA/AndroidStudio (https://github.com/JetBrains/compose-jb/issues/22)
     id("org.jetbrains.compose")
 }
 
-kotlin {
-    jvm {
-        withJava()
-    }
-    sourceSets {
-        named("jvmMain") {
-            dependencies {
-                implementation(compose.desktop.currentOs)
-                implementation(project(":common"))
-            }
-        }
-    }
+group = "info.anodsplace.weblists"
+version = "1.0.0"
+
+dependencies {
+    implementation(project(":common"))
+    implementation(compose.desktop.currentOs)
 }
 
 compose.desktop {
     application {
-        mainClass = "MainKt"
+        mainClass = "info.anodsplace.weblists.desktop.MainKt"
 
-        nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "KotlinMultiplatformComposeDesktopApplication"
-            packageVersion = "1.0.0"
-        }
+//        nativeDistributions {
+//            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+//            packageName = "info.anodsplace.weblists.desktop"
+//            packageVersion = "1.0.0"
+//        }
     }
 }

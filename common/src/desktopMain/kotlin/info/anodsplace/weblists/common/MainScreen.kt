@@ -1,9 +1,6 @@
-package info.anodsplace.weblists.desktop
+package info.anodsplace.weblists.common
 
 import androidx.compose.runtime.*
-import info.anodsplace.weblists.common.AppViewModel
-import info.anodsplace.weblists.common.ContentState
-import info.anodsplace.weblists.common.StringProvider
 import info.anodsplace.weblists.common.ui.screen.*
 
 @Composable

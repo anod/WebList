@@ -7,17 +7,38 @@ plugins {
     id("com.squareup.sqldelight")
     id("kotlinx-serialization")
 }
-//
-//android {
-//    configurations {
-////        create("androidTestApi")
-////        create("androidTestDebugApi")
-////        create("androidTestReleaseApi")
-//        create("testApi")
-//        create("testDebugApi")
-//        create("testReleaseApi")
-//    }
-//}
+
+android {
+    compileSdkVersion(30)
+
+    defaultConfig {
+        minSdkVersion(25)
+        targetSdkVersion(30)
+        versionCode = 1
+        versionName = "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        named("main") {
+            manifest.srcFile("src/androidMain/AndroidManifest.xml")
+            res.srcDirs("src/androidMain/res")
+        }
+    }
+
+    configurations {
+        create("androidTestApi")
+        create("androidTestDebugApi")
+        create("androidTestReleaseApi")
+        create("testApi")
+        create("testDebugApi")
+        create("testReleaseApi")
+    }
+}
 
 kotlin {
     android()
@@ -63,33 +84,6 @@ kotlin {
             }
         }
     }
-}
-
-android {
-    compileSdkVersion(30)
-
-    defaultConfig {
-        minSdkVersion(25)
-        targetSdkVersion(30)
-        versionCode = 1
-        versionName = "1.0"
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    sourceSets {
-        named("main") {
-            manifest.srcFile("src/androidMain/AndroidManifest.xml")
-            res.srcDirs("src/androidMain/res")
-        }
-    }
-
-//    lintOptions {
-//        isAbortOnError = false
-//    }
 }
 
 sqldelight {

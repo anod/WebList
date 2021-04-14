@@ -1,4 +1,4 @@
-package info.anodsplace.weblists.android
+package info.anodsplace.weblists.common
 
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 

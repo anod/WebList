@@ -27,22 +27,32 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
         useIR = true
     }
+
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.0.0-beta03"
-        kotlinCompilerVersion = "1.4.31"
-    }
+
+//    composeOptions {
+//        kotlinCompilerExtensionVersion = "1.0.0-beta04"
+////        kotlinCompilerVersion = "1.4.31"
+//    }
 }
+
+//tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+//    kotlinOptions {
+//        jvmTarget = "1.8"
+//        freeCompilerArgs += listOf("-P", "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true")
+//    }
+//}
 
 dependencies {
     implementation(project(":common"))
-    
+
     implementation("androidx.fragment:fragment-ktx:1.3.2")
     implementation("androidx.activity:activity-ktx:1.2.2")
     implementation("com.google.android.material:material:1.3.0")

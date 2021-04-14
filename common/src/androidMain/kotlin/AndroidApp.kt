@@ -4,7 +4,7 @@ import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
 import info.anodsplace.weblists.common.JsoupClient
 import info.anodsplace.weblists.db.WebListsDb.Companion.Schema
-import info.anodsplace.weblists.android.isValidUrl
+import info.anodsplace.weblists.common.isValidUrl
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.statement.*
