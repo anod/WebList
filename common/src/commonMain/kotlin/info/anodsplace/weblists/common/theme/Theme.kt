@@ -1,4 +1,4 @@
-package info.anodsplace.weblists.common.ui.theme
+package info.anodsplace.weblists.common.theme
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors

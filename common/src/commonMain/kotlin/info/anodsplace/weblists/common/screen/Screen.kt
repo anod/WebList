@@ -1,4 +1,4 @@
-package info.anodsplace.weblists.common.ui.screen
+package info.anodsplace.weblists.common.screen
 
 import kotlin.reflect.KClass
 

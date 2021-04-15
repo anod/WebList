@@ -4,7 +4,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import info.anodsplace.weblists.common.db.WebList
 import info.anodsplace.weblists.common.rules.*
-import info.anodsplace.weblists.common.ui.theme.Teal200
+import info.anodsplace.weblists.common.theme.Teal200
 
 object Wikipedia {
 

@@ -8,7 +8,7 @@ import com.charleskorn.kaml.YamlConfiguration
 import info.anodsplace.weblists.common.*
 import info.anodsplace.weblists.common.export.Exporter
 import info.anodsplace.weblists.common.db.AppDatabase
-import info.anodsplace.weblists.common.ui.theme.WebListTheme
+import info.anodsplace.weblists.common.theme.WebListTheme
 import info.anodsplace.weblists.common.DatabaseDriverFactory
 import info.anodsplace.weblists.common.Preferences
 import info.anodsplace.weblists.common.DesktopExporter

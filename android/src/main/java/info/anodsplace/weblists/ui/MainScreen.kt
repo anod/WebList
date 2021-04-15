@@ -8,19 +8,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.*
-import com.charleskorn.kaml.PolymorphismStyle
-import com.charleskorn.kaml.Yaml
-import com.charleskorn.kaml.YamlConfiguration
 import info.anodsplace.weblists.asListHeader
 import info.anodsplace.weblists.common.AppViewModel
 import info.anodsplace.weblists.common.ContentState
 import info.anodsplace.weblists.common.StringProvider
 import info.anodsplace.weblists.common.db.WebSection
 import info.anodsplace.weblists.common.db.WebSite
-import info.anodsplace.weblists.common.db.WebSiteLists
-import info.anodsplace.weblists.common.samples.MatchTv
-import info.anodsplace.weblists.common.ui.screen.*
-import info.anodsplace.weblists.common.ui.theme.WebListTheme
+import info.anodsplace.weblists.common.screen.*
+import info.anodsplace.weblists.common.theme.WebListTheme
 
 @Composable
 fun MainScreen(viewModel: AppViewModel, strings: StringProvider) {

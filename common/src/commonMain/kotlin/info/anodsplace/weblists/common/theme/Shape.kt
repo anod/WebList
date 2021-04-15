@@ -1,4 +1,4 @@
-package info.anodsplace.weblists.common.ui.theme
+package info.anodsplace.weblists.common.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes

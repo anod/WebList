@@ -1,4 +1,4 @@
-package info.anodsplace.weblists.common.ui.screen
+package info.anodsplace.weblists.common.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*

@@ -1,4 +1,4 @@
-package info.anodsplace.weblists.common.ui.screen
+package info.anodsplace.weblists.common.screen
 
 import info.anodsplace.weblists.common.HtmlDocument
 import androidx.compose.foundation.layout.Column
@@ -109,7 +109,11 @@ fun EditTopBar(siteId: Long, title: String, strings: StringProvider, navigate: (
             .clip(RoundedCornerShape(4.dp)),
         title = { Text(text = title) },
         navigationIcon = {
-            IconButton(onClick = { if (siteId == 0L) navigate(Screen.Catalog) else navigate(Screen.Site(siteId)) }) {
+            IconButton(onClick = { if (siteId == 0L) navigate(Screen.Catalog) else navigate(
+                Screen.Site(
+                    siteId
+                )
+            ) }) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = strings.backToCatalog)
             }
         },

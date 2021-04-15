@@ -6,8 +6,8 @@ import androidx.navigation.compose.NamedNavArgument
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.navigate
-import info.anodsplace.weblists.common.ui.screen.Screen
-import info.anodsplace.weblists.common.ui.screen.ScreenArg
+import info.anodsplace.weblists.common.screen.Screen
+import info.anodsplace.weblists.common.screen.ScreenArg
 
 fun ScreenArg.toNavArg(): NamedNavArgument {
     return navArgument(name) {

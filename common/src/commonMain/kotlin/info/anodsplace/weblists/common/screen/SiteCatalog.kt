@@ -1,4 +1,4 @@
-package info.anodsplace.weblists.common.ui.screen
+package info.anodsplace.weblists.common.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
@@ -15,7 +15,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import info.anodsplace.weblists.common.StringProvider
 import info.anodsplace.weblists.common.db.WebSite
-import info.anodsplace.weblists.common.ui.theme.WebListTheme
 
 @Composable
 fun LoadingCatalog() {

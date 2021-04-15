@@ -1,4 +1,4 @@
-package info.anodsplace.weblists.common.ui.screen
+package info.anodsplace.weblists.common.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

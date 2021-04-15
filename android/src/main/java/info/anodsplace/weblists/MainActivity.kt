@@ -11,7 +11,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.lifecycle.lifecycleScope
 import info.anodsplace.weblists.backup.CreateDocument
-import info.anodsplace.weblists.common.ui.theme.WebListTheme
+import info.anodsplace.weblists.common.theme.WebListTheme
 import info.anodsplace.weblists.ui.LocalBackPressedDispatcher
 import info.anodsplace.weblists.ui.MainScreen
 import kotlinx.coroutines.flow.collect
