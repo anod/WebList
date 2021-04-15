@@ -1,7 +1,7 @@
 package info.anodsplace.weblists.common.db
 
-import HtmlDocument
-import HtmlElements
+import info.anodsplace.weblists.common.HtmlDocument
+import info.anodsplace.weblists.common.HtmlElements
 import androidx.compose.ui.text.AnnotatedString
 import info.anodsplace.weblists.common.extensions.toBool
 import info.anodsplace.weblists.common.rules.ElementTransformation

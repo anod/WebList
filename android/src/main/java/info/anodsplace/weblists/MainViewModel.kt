@@ -1,6 +1,5 @@
 package info.anodsplace.weblists
 
-import HtmlDocument
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +11,7 @@ import info.anodsplace.weblists.common.ContentState
 import info.anodsplace.weblists.common.db.WebList
 import info.anodsplace.weblists.common.db.WebSite
 import info.anodsplace.weblists.common.db.WebSiteLists
+import info.anodsplace.weblists.common.HtmlDocument
 import kotlinx.coroutines.flow.*
 import org.koin.core.logger.Logger
 

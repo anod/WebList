@@ -1,6 +1,6 @@
 package info.anodsplace.weblists
 
-import HtmlElement
+import info.anodsplace.weblists.common.HtmlElement
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import info.anodsplace.weblists.common.rules.AnnotationAttributes

@@ -1,7 +1,6 @@
 package info.anodsplace.weblists
 
-import DatabaseDriverFactory
-import HtmlClientFactory
+import info.anodsplace.weblists.common.DatabaseDriverFactory
 import android.app.Application
 import android.content.Context
 import android.util.Log
@@ -10,8 +9,11 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import info.anodsplace.weblists.backup.AndroidExporter
 import info.anodsplace.weblists.common.AppPreferences
+import info.anodsplace.weblists.common.HtmlParser
+import info.anodsplace.weblists.common.JsoupParser
 import info.anodsplace.weblists.common.db.AppDatabase
 import info.anodsplace.weblists.db.WebListsDb
+import io.ktor.client.*
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import org.koin.core.logger.Logger
@@ -38,7 +40,7 @@ val appModule = module {
     }
     single<Logger> { AndroidLogger() }
     single<AppPreferences> { Preferences(get<Context>()) }
-    single { HtmlClientFactory().create() }
+    single<HtmlParser> { JsoupParser() }
     single { Yaml(configuration = YamlConfiguration(
         encodeDefaults = false,
         polymorphismStyle = PolymorphismStyle.Property

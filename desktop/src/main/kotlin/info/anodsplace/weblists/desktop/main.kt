@@ -1,22 +1,17 @@
 package info.anodsplace.weblists.desktop
 
-import DatabaseDriverFactory
-import HtmlClientFactory
 import androidx.compose.desktop.Window
 import androidx.compose.ui.unit.IntSize
 import com.charleskorn.kaml.PolymorphismStyle
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
-import info.anodsplace.weblists.common.AppCoroutineScope
-import info.anodsplace.weblists.common.AppPreferences
-import info.anodsplace.weblists.common.CommonAppViewModel
-import info.anodsplace.weblists.common.DesktopExporter
-import info.anodsplace.weblists.common.MainScreen
-import info.anodsplace.weblists.common.Preferences
+import info.anodsplace.weblists.common.*
 import info.anodsplace.weblists.common.export.Exporter
-import info.anodsplace.weblists.common.StringProvider
 import info.anodsplace.weblists.common.db.AppDatabase
 import info.anodsplace.weblists.common.ui.theme.WebListTheme
+import info.anodsplace.weblists.common.DatabaseDriverFactory
+import info.anodsplace.weblists.common.Preferences
+import info.anodsplace.weblists.common.DesktopExporter
 import info.anodsplace.weblists.db.WebListsDb
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -40,7 +35,7 @@ val appModule = module {
     }
     single<Logger> { PrintLogger(Level.DEBUG) }
     single<AppPreferences> { Preferences() }
-    single { HtmlClientFactory().create() }
+    single<HtmlParser> { JsoupParser() }
     single { Yaml(configuration = YamlConfiguration(
         encodeDefaults = false,
         polymorphismStyle = PolymorphismStyle.Property
