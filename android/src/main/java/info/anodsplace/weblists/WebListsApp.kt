@@ -43,7 +43,7 @@ val appModule = module {
         encodeDefaults = false,
         polymorphismStyle = PolymorphismStyle.Property
     )) }
-    single { AndroidExporter(get()) }
+    single { AndroidExporter(get(), get()) }
 }
 
 class WebListsApp: Application() {

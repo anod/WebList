@@ -58,13 +58,6 @@ actual class HtmlElements(private val elements: Elements) : Iterable<HtmlElement
 }
 
 actual fun parseColor(hexStr: String): Int = android.graphics.Color.parseColor(hexStr)
-actual class StreamWriter(private val outputWriter: Writer) {
-    actual fun write(content: String) {
-        val writer = BufferedWriter(outputWriter)
-        writer.write(content)
-        writer.close()
-    }
-}
 
 actual class JsoupParser {
     actual suspend fun parse(response: HttpResponse, baseUri: String): HtmlDocument {

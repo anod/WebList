@@ -94,26 +94,6 @@ fun MainScreen(viewModel: AppViewModel, strings: StringProvider) {
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun EditSiteListsPreview() {
-    WebListTheme {
-        EditSiteLists(
-            siteId = 0,
-            webSiteLists = mutableStateOf(
-                WebSiteLists(
-                    WebSite(0, "http://sample1", "Sample 1"),
-                    MatchTv.sample(0)
-                )
-            ),
-            yaml = Yaml(configuration = YamlConfiguration(polymorphismStyle = PolymorphismStyle.Property)),
-            strings = StringProvider.Default(),
-            onChange = { _, _, _ -> }
-        ) { }
-    }
-}
-
-
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
 fun EmptyPreview() {
     WebListTheme {
         EmptyContent(strings = StringProvider.Default())
