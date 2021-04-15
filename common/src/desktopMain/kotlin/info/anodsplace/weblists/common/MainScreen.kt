@@ -2,7 +2,6 @@ package info.anodsplace.weblists.common
 
 import androidx.compose.runtime.*
 import info.anodsplace.weblists.common.screen.*
-import info.anodsplace.weblists.common.ui.screen.*
 
 @Composable
 fun MainScreen(viewModel: AppViewModel, strings: StringProvider) {

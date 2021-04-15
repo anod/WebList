@@ -11,6 +11,9 @@ version = "1.0.0"
 
 dependencies {
     implementation(project(":common"))
+    implementation("org.jsoup:jsoup:1.13.1")
+    implementation("io.ktor:ktor-client-java:1.5.3")
+    implementation("com.squareup.sqldelight:sqlite-driver:1.4.4")
     implementation(compose.desktop.currentOs)
 }
 

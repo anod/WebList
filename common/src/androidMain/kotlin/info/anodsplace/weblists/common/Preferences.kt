@@ -1,9 +1,8 @@
-package info.anodsplace.weblists
+package info.anodsplace.weblists.common
 
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import info.anodsplace.weblists.common.AppPreferences
 
 class Preferences(private val sharedPreferences: SharedPreferences) : AppPreferences {
 

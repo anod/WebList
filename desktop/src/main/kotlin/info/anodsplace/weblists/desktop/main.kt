@@ -2,23 +2,11 @@ package info.anodsplace.weblists.desktop
 
 import androidx.compose.desktop.Window
 import androidx.compose.ui.unit.IntSize
-import com.charleskorn.kaml.PolymorphismStyle
-import com.charleskorn.kaml.Yaml
-import com.charleskorn.kaml.YamlConfiguration
 import info.anodsplace.weblists.common.*
-import info.anodsplace.weblists.common.export.Exporter
-import info.anodsplace.weblists.common.db.AppDatabase
 import info.anodsplace.weblists.common.theme.WebListTheme
-import info.anodsplace.weblists.common.DatabaseDriverFactory
-import info.anodsplace.weblists.common.Preferences
-import info.anodsplace.weblists.common.DesktopExporter
-import info.anodsplace.weblists.db.WebListsDb
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.core.context.startKoin
-import org.koin.core.logger.Level
-import org.koin.core.logger.Logger
-import org.koin.core.logger.PrintLogger
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import java.awt.image.BufferedImage
@@ -27,21 +15,6 @@ import javax.imageio.ImageIO
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
 import javax.swing.filechooser.FileSystemView
-
-val appModule = module {
-    single {
-        val sqlDriver = DatabaseDriverFactory().createDriver()
-        AppDatabase(WebListsDb(sqlDriver))
-    }
-    single<Logger> { PrintLogger(Level.DEBUG) }
-    single<AppPreferences> { Preferences() }
-    single<HtmlParser> { JsoupParser() }
-    single { Yaml(configuration = YamlConfiguration(
-        encodeDefaults = false,
-        polymorphismStyle = PolymorphismStyle.Property
-    )) }
-    single<Exporter> { DesktopExporter(get<Logger>()) }
-}
 
 fun loadWindowIcon(): BufferedImage {
     try {
@@ -64,7 +37,7 @@ fun main() {
         koin.loadModules(listOf(module {
             single { appCoroutineScope } bind AppCoroutineScope::class
         }))
-        modules(appModule)
+        modules(createAppModule())
     }
 
     val viewModel = CommonAppViewModel(appCoroutineScope)
@@ -73,7 +46,8 @@ fun main() {
         viewModel.createDocumentRequest.collect { destName ->
             val fileChooser = JFileChooser(FileSystemView.getFileSystemView().homeDirectory)
             fileChooser.selectedFile = File(destName)
-            fileChooser.fileFilter = FileNameExtensionFilter("WebList definition (yaml, yml)", "yaml", "yml")
+            fileChooser.fileFilter =
+                FileNameExtensionFilter("WebList definition (yaml, yml)", "yaml", "yml")
             val returnValue = fileChooser.showSaveDialog(null)
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 val selectedFile = fileChooser.selectedFile
@@ -93,8 +67,6 @@ fun main() {
         size = IntSize(400, 800),
         icon = loadWindowIcon(),
     ) {
-        WebListTheme(darkTheme = true) {
-            MainScreen(viewModel, strings = StringProvider.Default())
-        }
+        DesktopApp(viewModel = viewModel)
     }
 }

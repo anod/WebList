@@ -11,6 +11,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.lifecycle.lifecycleScope
 import info.anodsplace.weblists.backup.CreateDocument
+import info.anodsplace.weblists.common.AndroidApp
 import info.anodsplace.weblists.common.theme.WebListTheme
 import info.anodsplace.weblists.ui.LocalBackPressedDispatcher
 import info.anodsplace.weblists.ui.MainScreen
@@ -35,19 +36,19 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             viewModel.createDocumentRequest.collect { title ->
-                createDocumentLauncher.launch(CreateDocument.Args(Uri.EMPTY, "text/yaml", title ?: "default.yaml"))
+                createDocumentLauncher.launch(CreateDocument.Args(Uri.EMPTY, "text/yaml", title))
             }
         }
 
         lifecycleScope.launch {
-            viewModel.openDocument.collect { title ->
+            viewModel.openDocument.collect { _ ->
                 openDocumentLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
             }
         }
 
         setContent {
             CompositionLocalProvider(LocalBackPressedDispatcher provides this) {
-                WebListTheme(darkTheme = isSystemInDarkTheme()) {
+                AndroidApp {
                     MainScreen(viewModel, strings = AndroidStrings(applicationContext))
                 }
             }

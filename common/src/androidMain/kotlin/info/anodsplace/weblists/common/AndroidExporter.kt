@@ -1,8 +1,7 @@
-package info.anodsplace.weblists.backup
+package info.anodsplace.weblists.common
 
 import android.content.Context
 import android.net.Uri
-import info.anodsplace.weblists.BuildConfig
 import info.anodsplace.weblists.common.export.Exporter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -12,10 +11,6 @@ import java.io.OutputStream
 import java.io.OutputStreamWriter
 
 class AndroidExporter(private val context: Context, logger: Logger): Exporter(logger) {
-
-    companion object {
-        const val AUTHORITY = BuildConfig.APPLICATION_ID + ".fileprovider"
-    }
 
     override suspend fun export(destUri: String, content: String): Int = withContext(Dispatchers.IO) {
         val uri = Uri.parse(destUri)
