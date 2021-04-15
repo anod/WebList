@@ -2,8 +2,13 @@ package info.anodsplace.weblists.desktop
 
 import DatabaseDriverFactory
 import HtmlClientFactory
+import androidx.compose.desktop.AppManager
 import androidx.compose.desktop.Window
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.window.MenuItem
+import androidx.compose.ui.window.Tray
 import com.charleskorn.kaml.PolymorphismStyle
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
@@ -20,6 +25,9 @@ import info.anodsplace.weblists.db.WebListsDb
 import org.koin.core.context.startKoin
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import java.awt.image.BufferedImage
+import java.io.File
+import javax.imageio.ImageIO
 
 val appModule = module {
     single {
@@ -35,13 +43,27 @@ val appModule = module {
     single { ExportDesktop() }
 }
 
+fun loadWindowIcon(): BufferedImage {
+    try {
+        val imageRes = "images/icon_1024.png"
+        val img = Thread.currentThread().contextClassLoader.getResource(imageRes)
+        val bitmap: BufferedImage? = ImageIO.read(img)
+        if (bitmap != null) {
+            return bitmap
+        }
+    } catch (e: Exception) {
+        print(e.message)
+        e.printStackTrace()
+    }
+    return BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB)
+}
+
 val appCoroutineScope = AppCoroutineScope()
 
 fun main() = Window(
     title = "Web lists",
     size = IntSize(400, 800),
-    //icon =
-    //onDismissRequest = { }
+    icon = loadWindowIcon()
 ) {
     startKoin {
         koin.loadModules(listOf(module {
