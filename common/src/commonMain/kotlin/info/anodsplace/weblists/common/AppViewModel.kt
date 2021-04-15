@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.koin.core.logger.Logger
 
 sealed class ContentState {
     object Loading: ContentState()
@@ -22,6 +23,7 @@ sealed class ContentState {
 }
 
 interface AppViewModel: KoinComponent {
+    val log: Logger
     var lastError: String
     val prefs: AppPreferences
     val yaml: Yaml
@@ -46,9 +48,11 @@ class CommonAppViewModel(
     private val exporter: Exporter by inject()
     private var draftSite: MutableStateFlow<WebSiteLists?> = MutableStateFlow(null)
 
-    override var lastError: String = ""
     override val prefs: AppPreferences by inject()
     override val yaml: Yaml by inject()
+    override val log: Logger by inject()
+
+    override var lastError: String = ""
     override val sites = MutableStateFlow<ContentState>(ContentState.Loading)
     override val docSource = MutableStateFlow<HtmlDocument?>(null)
     override var currentSections: ContentState.SiteSections? = null

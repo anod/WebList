@@ -7,7 +7,7 @@ import java.io.BufferedWriter
 import java.io.IOException
 import java.io.Writer
 
-abstract class Exporter(private val logger: Logger) {
+abstract class Exporter(val logger: Logger) {
     private val mutex = Mutex()
 
     abstract suspend fun export(destUri: String, content: String): Int

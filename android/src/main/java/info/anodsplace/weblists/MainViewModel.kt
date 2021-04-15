@@ -13,16 +13,19 @@ import info.anodsplace.weblists.common.db.WebList
 import info.anodsplace.weblists.common.db.WebSite
 import info.anodsplace.weblists.common.db.WebSiteLists
 import kotlinx.coroutines.flow.*
+import org.koin.core.logger.Logger
 
 class MainViewModel(application: Application) : AndroidViewModel(application), AppViewModel {
     private val common = CommonAppViewModel(viewModelScope)
-    override var lastError: String
-        get() = common.lastError
-        set(value) { common.lastError = value }
     override val prefs: AppPreferences
         get() = common.prefs
     override val yaml: Yaml
         get() = common.yaml
+    override val log: Logger
+        get() = common.log
+    override var lastError: String
+        get() = common.lastError
+        set(value) { common.lastError = value }
     override val sites: MutableStateFlow<ContentState>
         get() = common.sites
     override val docSource: MutableStateFlow<HtmlDocument?>

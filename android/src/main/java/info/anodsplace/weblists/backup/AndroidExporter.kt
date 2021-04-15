@@ -2,7 +2,6 @@ package info.anodsplace.weblists.backup
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import info.anodsplace.weblists.BuildConfig
 import info.anodsplace.weblists.common.export.Exporter
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +24,7 @@ class AndroidExporter(private val context: Context, logger: Logger): Exporter(lo
             outputStream = context.contentResolver.openOutputStream(uri) ?: return@withContext ERROR_UNEXPECTED
             writeContent(OutputStreamWriter(outputStream), content)
         } catch (e: FileNotFoundException) {
-            Log.e("export", e.message, e)
+            logger.error("export error: ${e.message}")
             ERROR_FILE_READ
         }
     }

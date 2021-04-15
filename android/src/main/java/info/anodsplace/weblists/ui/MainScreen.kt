@@ -1,7 +1,6 @@
 package info.anodsplace.weblists.ui
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +30,7 @@ fun MainScreen(viewModel: AppViewModel, strings: StringProvider) {
         composable(Screen.Empty) { EmptyContent(strings) }
         composable(Screen.Error) {
             val message = if (viewModel.lastError.isEmpty()) "Unexpected error" else viewModel.lastError
-            Log.e("error", message)
+            viewModel.log.error("error screen $message")
             ErrorContent(message)
         }
         composable(Screen.Catalog) {

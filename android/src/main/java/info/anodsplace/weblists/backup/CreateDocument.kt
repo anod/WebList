@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.provider.DocumentsContract
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,13 +18,13 @@ class CreateDocument : ActivityResultContract<CreateDocument.Args, Uri>() {
         return Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             putExtra(Intent.EXTRA_TITLE, input.title)
             try {
-                setType(input.dataType)
+                type = input.dataType
 //                setDataAndType(input.initialUri, input.dataType)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 //                    putExtra(DocumentsContract.EXTRA_INITIAL_URI, input.initialUri)
                 }
             } catch (e: Exception) {
-                Log.e("CreateDocument", "${e.message}", e)
+                Log.e("WebLists", "CreateDocument: ${e.message}", e)
             }
         }
     }
