@@ -30,68 +30,25 @@ import kotlinx.serialization.encodeToString
 
 @Composable
 fun EditSiteScreen(siteId: Long, viewModel: AppViewModel, strings: StringProvider, navigate: (Screen) -> Unit) {
-    val editSiteState = remember { viewModel.loadDraft(siteId) }.collectAsState()
-    val document by viewModel.docSource.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+    val editSiteState by remember { viewModel.loadDraft(siteId) }.collectAsState()
+    //val document by viewModel.docSource.collectAsState()
     var backupMessage by remember { mutableStateOf<String?>(null) }
-    EditSiteLists(
-        siteId,
-        editSiteState,
-        viewModel.yaml,
-        strings,
-        document,
-        { site, lists, loadPreview ->
-            viewModel.updateDraft(site, lists, loadPreview)
-        },
-    ) {
-        when (it) {
-            is Screen.Export -> {
-                coroutineScope.launch {
-                    viewModel.export(it.siteId, it.content).collect {
-                        backupMessage = "Finished code $it"
-                    }
-                }
-            }
-            is Screen.Import -> {
-
-            }
-            else -> navigate(it)
-        }
-    }
-    if (backupMessage != null) {
-        Snackbar {
-            Text(text = backupMessage!!)
-        }
-    }
-}
-
-@Composable
-fun EditSiteLists(
-    siteId: Long,
-    webSiteLists: State<WebSiteLists?>,
-    yaml: Yaml,
-    strings: StringProvider,
-    document: HtmlDocument? = null,
-    onChange: (site: WebSite, lists: List<WebList>, loadDoc: Boolean) -> Unit = { _, _, _ -> },
-    navigate: (Screen) -> Unit = { }
-) {
-    MainSurface {
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(),
-        ) {
-            var yamlValue by remember {
-                mutableStateOf(yaml.encodeToString(webSiteLists.value))
-            }
+    Scaffold(
+        topBar = {
             EditTopBar(
                 siteId = siteId,
-                title = webSiteLists.value?.site?.title ?: "",
+                title = editSiteState?.site?.title ?: "",
                 strings = strings
             ) {
                 when (it) {
                     is Screen.Export -> {
-                        navigate(Screen.Export(siteId, yamlValue))
+                        coroutineScope.launch {
+                            viewModel.export(it.siteId, it.content).collect {
+                                backupMessage = "Finished with code $it"
+                            }
+                        }
+                        ///navigate(Screen.Export(siteId, yamlValue))
                     }
                     is Screen.Import -> {
 
@@ -99,17 +56,47 @@ fun EditSiteLists(
                     else -> navigate(it)
                 }
             }
-
-            if (webSiteLists.value != null) {
-                OutlinedTextField(
-                    modifier = Modifier.padding(8.dp),
-                    value = yamlValue,
-                    onValueChange = { newText -> yamlValue = newText },
-                    readOnly = true,
-                    textStyle = MaterialTheme.typography.body2,
-                    visualTransformation = Highlight
-                )
+        },
+        snackbarHost = {
+            if (backupMessage != null) {
+                coroutineScope.launch {
+                    it.showSnackbar(message = backupMessage!!)
+                }
             }
+        }
+    ) {
+        if (editSiteState == null) {
+            LoadingCatalog()
+        } else {
+            var yamlValue by remember { mutableStateOf(viewModel.yaml.encodeToString(editSiteState)) }
+            EditSiteLists(
+                yamlValue = yamlValue
+            ) { newYaml ->
+                    yamlValue = newYaml
+            }
+        }
+    }
+}
+
+@Composable
+fun EditSiteLists(
+    yamlValue: String,
+    onChange: (newYaml: String) -> Unit = { },
+) {
+    MainSurface {
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(),
+        ) {
+            OutlinedTextField(
+                modifier = Modifier.padding(8.dp),
+                value = yamlValue,
+                onValueChange = { newText -> onChange(newText) },
+                readOnly = true,
+                textStyle = MaterialTheme.typography.body2,
+                visualTransformation = Highlight
+            )
         }
     }
 }
