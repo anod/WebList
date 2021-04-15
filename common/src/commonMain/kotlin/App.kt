@@ -37,7 +37,3 @@ expect class HtmlDocument {
 expect class HtmlClientFactory {
     fun create(): HtmlClient
 }
-
-expect class StreamWriter {
-    fun write(content: String)
-}

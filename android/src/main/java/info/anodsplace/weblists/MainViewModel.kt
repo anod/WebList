@@ -12,11 +12,7 @@ import info.anodsplace.weblists.common.ContentState
 import info.anodsplace.weblists.common.db.WebList
 import info.anodsplace.weblists.common.db.WebSite
 import info.anodsplace.weblists.common.db.WebSiteLists
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.*
 
 class MainViewModel(application: Application) : AndroidViewModel(application), AppViewModel {
     private val common = CommonAppViewModel(viewModelScope)
@@ -47,19 +43,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application), A
         return common.loadDraft(siteId)
     }
 
-    val createDocument = MutableSharedFlow<String>()
-    override fun export(siteId: Long, content: String): Flow<Int> {
-        return common.export(siteId, content).onStart {
-            createDocument.emit("export-$siteId.yaml")
-        }
-    }
 
-    override val onExportUri: MutableSharedFlow<String?>
-        get() = common.onExportUri
-    fun exportTo(destUri: String?) {
-        viewModelScope.launch {
-            onExportUri.emit(destUri ?: "")
-        }
+    override val createDocumentRequest: MutableSharedFlow<String>
+        get() = common.createDocumentRequest
+
+    override fun export(siteId: Long, content: String): Flow<Int> = common.export(siteId, content)
+    override fun onExportUri(isSuccess: Boolean, destUri: String) {
+        common.onExportUri(isSuccess, destUri)
     }
 
     val openDocument = MutableSharedFlow<Boolean>()

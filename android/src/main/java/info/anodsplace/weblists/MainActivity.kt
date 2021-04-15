@@ -30,12 +30,12 @@ class MainActivity : ComponentActivity() {
         }
 
         createDocumentLauncher = registerForActivityResult(CreateDocument()) { destUri ->
-            viewModel.exportTo(destUri.toString())
+            viewModel.onExportUri(true, destUri.toString())
         }
 
         lifecycleScope.launch {
-            viewModel.createDocument.collect { title ->
-                createDocumentLauncher.launch(CreateDocument.Args(Uri.EMPTY, "text/yaml", title))
+            viewModel.createDocumentRequest.collect { title ->
+                createDocumentLauncher.launch(CreateDocument.Args(Uri.EMPTY, "text/yaml", title ?: "default.yaml"))
             }
         }
 

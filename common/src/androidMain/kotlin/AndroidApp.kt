@@ -14,9 +14,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
-import java.io.InputStream
-import java.io.OutputStream
-import java.io.OutputStreamWriter
+import java.io.*
 import kotlin.text.Charsets
 
 actual fun getPlatformName(): String = "Android"
@@ -60,9 +58,9 @@ actual class HtmlElements(private val elements: Elements) : Iterable<HtmlElement
 }
 
 actual fun parseColor(hexStr: String): Int = android.graphics.Color.parseColor(hexStr)
-actual class StreamWriter(private val outputStream: OutputStream) {
+actual class StreamWriter(private val outputWriter: Writer) {
     actual fun write(content: String) {
-        val writer = OutputStreamWriter(outputStream)
+        val writer = BufferedWriter(outputWriter)
         writer.write(content)
         writer.close()
     }

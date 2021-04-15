@@ -4,7 +4,7 @@ import HtmlClient
 import HtmlDocument
 import com.charleskorn.kaml.Yaml
 import info.anodsplace.weblists.common.db.*
-import info.anodsplace.weblists.common.export.Export
+import info.anodsplace.weblists.common.export.Exporter
 import isValidUrl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -28,13 +28,14 @@ interface AppViewModel: KoinComponent {
     val sites: MutableStateFlow<ContentState>
     val docSource: MutableStateFlow<HtmlDocument?>
     var currentSections: ContentState.SiteSections?
-    val onExportUri: MutableSharedFlow<String?>
+    val createDocumentRequest: MutableSharedFlow<String>
 
     fun loadSites()
     fun loadSite(siteId: Long): Flow<ContentState>
     fun updateDraft(site: WebSite, lists: List<WebList>, loadPreview: Boolean)
     fun loadDraft(siteId: Long): MutableStateFlow<WebSiteLists?>
     fun export(siteId: Long, content: String): Flow<Int>
+    fun onExportUri(isSuccess: Boolean, destUri: String)
 }
 
 class CommonAppViewModel(
@@ -42,7 +43,7 @@ class CommonAppViewModel(
 ): AppViewModel {
     private val db: AppDatabase by inject()
     private val jsoup: HtmlClient by inject()
-    private val backup: Export by inject()
+    private val exporter: Exporter by inject()
     private var draftSite: MutableStateFlow<WebSiteLists?> = MutableStateFlow(null)
 
     override var lastError: String = ""
@@ -122,14 +123,35 @@ class CommonAppViewModel(
         return draftSite
     }
 
-    override val onExportUri = MutableSharedFlow<String?>()
-    override fun export(siteId: Long, content: String): Flow<Int> = flow {
-        val destUri = onExportUri.first { it != null }!!
-        if (destUri.isNotEmpty()) {
-            val result = backup.export(destUri, content)
-            emit(result)
-        } else {
-            emit(Export.ERROR_UNEXPECTED)
+    override val createDocumentRequest: MutableSharedFlow<String> = MutableSharedFlow()
+    private val onExportUri = MutableStateFlow<ExportUriResult>(ExportUriResult.Unknown)
+    private val exportState = MutableStateFlow(Exporter.NO_RESULT)
+    override fun export(siteId: Long, content: String): Flow<Int> {
+        exportState.value = Exporter.NO_RESULT
+        onExportUri.value = ExportUriResult.Unknown
+
+        viewModelScope.launch {
+           createDocumentRequest.emit("export-$siteId.yaml")
+           onExportUri.collect { exportUriResult ->
+               if (exportUriResult is ExportUriResult.Success) {
+                   exportState.value = exporter.export(exportUriResult.destUri, content)
+               } else {
+                   exportState.value = Exporter.ERROR_UNEXPECTED
+               }
+           }
+        }
+        return exportState
+    }
+
+    override fun onExportUri(isSuccess: Boolean, destUri: String) {
+        viewModelScope.launch {
+            onExportUri.emit(if (isSuccess) ExportUriResult.Success(destUri) else ExportUriResult.Error)
         }
     }
+}
+
+sealed class ExportUriResult {
+    object Unknown: ExportUriResult()
+    class Success(val destUri: String): ExportUriResult()
+    object Error: ExportUriResult()
 }

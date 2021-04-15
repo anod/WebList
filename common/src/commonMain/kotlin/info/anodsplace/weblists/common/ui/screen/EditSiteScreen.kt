@@ -34,6 +34,7 @@ fun EditSiteScreen(siteId: Long, viewModel: AppViewModel, strings: StringProvide
     val editSiteState by remember { viewModel.loadDraft(siteId) }.collectAsState()
     //val document by viewModel.docSource.collectAsState()
     var backupMessage by remember { mutableStateOf<String?>(null) }
+    var yamlValue by remember { mutableStateOf(viewModel.yaml.encodeToString(editSiteState)) }
     Scaffold(
         topBar = {
             EditTopBar(
@@ -44,8 +45,8 @@ fun EditSiteScreen(siteId: Long, viewModel: AppViewModel, strings: StringProvide
                 when (it) {
                     is Screen.Export -> {
                         coroutineScope.launch {
-                            viewModel.export(it.siteId, it.content).collect {
-                                backupMessage = "Finished with code $it"
+                            viewModel.export(it.siteId, yamlValue).collect { code ->
+                                backupMessage = "Finished with code $code"
                             }
                         }
                         ///navigate(Screen.Export(siteId, yamlValue))
@@ -68,7 +69,6 @@ fun EditSiteScreen(siteId: Long, viewModel: AppViewModel, strings: StringProvide
         if (editSiteState == null) {
             LoadingCatalog()
         } else {
-            var yamlValue by remember { mutableStateOf(viewModel.yaml.encodeToString(editSiteState)) }
             EditSiteLists(
                 yamlValue = yamlValue
             ) { newYaml ->

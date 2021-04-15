@@ -11,9 +11,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
-import java.io.InputStream
-import java.io.OutputStream
-import java.io.OutputStreamWriter
+import java.io.*
 import java.lang.IllegalArgumentException
 import kotlin.text.Charsets
 
@@ -65,14 +63,6 @@ actual fun parseColor(hexStr: String): Int {
         return color.toInt()
     }
     throw IllegalArgumentException("Unknown color")
-}
-
-actual class StreamWriter(private val outputStream: OutputStream) {
-    actual fun write(content: String) {
-        val writer = OutputStreamWriter(outputStream)
-        writer.write(content)
-        writer.close()
-    }
 }
 
 actual class JsoupParser {
