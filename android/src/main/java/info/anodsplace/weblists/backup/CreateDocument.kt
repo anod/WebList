@@ -9,7 +9,7 @@ import android.util.Log
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 
-class CreateDocument : ActivityResultContract<CreateDocument.Args, Uri>() {
+class CreateDocument : ActivityResultContract<CreateDocument.Args, Uri?>() {
     private val inner = ActivityResultContracts.CreateDocument()
     class Args(val initialUri: Uri, val dataType: String, val title: String)
 

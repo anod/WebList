@@ -70,6 +70,7 @@ kotlin {
                 api("com.squareup.okhttp3:okhttp:4.9.0")
                 api("io.ktor:ktor-client-okhttp:1.5.3")
 
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3")
                 implementation("org.jsoup:jsoup:1.13.1")
                 implementation("com.squareup.sqldelight:android-driver:1.4.4")
                 implementation("io.ktor:ktor-client-android:1.5.3")
@@ -77,6 +78,7 @@ kotlin {
         }
         named("desktopMain") {
             dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.4.3")
                 implementation("org.jsoup:jsoup:1.13.1")
                 implementation("io.ktor:ktor-client-java:1.5.3")
                 implementation("com.squareup.sqldelight:sqlite-driver:1.4.4")

@@ -20,8 +20,11 @@ abstract class Importer(val logger: Logger, val yaml: Yaml) {
             var webSiteLists: WebSiteLists? = null
             mutex.withLock {
                 val text: String = BufferedReader(reader).use { reader -> reader.readText() }
+                logger.debug("Read size ${text.length}")
                 webSiteLists = yaml.decodeFromString(text)
+                logger.debug("Text decoded")
             }
+            logger.debug("Read success ${if (webSiteLists != null) "Yes" else "No"}")
             if (webSiteLists != null) {
                 Pair(Code.resultDone, webSiteLists!!)
             } else {

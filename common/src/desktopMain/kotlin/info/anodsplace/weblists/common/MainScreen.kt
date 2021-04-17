@@ -42,7 +42,7 @@ fun MainScreen(viewModel: AppViewModel, strings: StringProvider) {
         }
         is Screen.Site -> {
             val siteId = nav.siteId
-            val siteState = remember { viewModel.loadSite(siteId) }.collectAsState(initial = ContentState.Loading)
+            val siteState = remember { viewModel.loadContent(siteId) }.collectAsState(initial = ContentState.Loading)
             when (val siteValue = siteState.value) {
                 is ContentState.Error -> {
                     viewModel.prefs.lastSiteId = -1

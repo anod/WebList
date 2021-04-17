@@ -57,7 +57,7 @@ fun MainScreen(viewModel: AppViewModel, strings: StringProvider) {
         navigation(startDestination = Screen.Site().template, route = "sites") {
             composable(Screen.Site()) { backStackEntry ->
                 val siteId = backStackEntry.arguments?.getLong("siteId") ?: 0L
-                val siteState = remember { viewModel.loadSite(siteId) }.collectAsState(initial = ContentState.Loading)
+                val siteState = remember { viewModel.loadContent(siteId) }.collectAsState(initial = ContentState.Loading)
                 when (val siteValue = siteState.value) {
                     is ContentState.Error -> {
                         viewModel.prefs.lastSiteId = -1

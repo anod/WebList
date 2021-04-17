@@ -3,8 +3,10 @@ package info.anodsplace.weblists.desktop
 import androidx.compose.desktop.Window
 import androidx.compose.ui.unit.IntSize
 import info.anodsplace.weblists.common.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.swing.Swing
 import org.koin.core.context.startKoin
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -29,7 +31,7 @@ fun loadWindowIcon(): BufferedImage {
 }
 
 fun main() {
-    val appCoroutineScope = AppCoroutineScope()
+    val appCoroutineScope = AppCoroutineScope(Dispatchers.Swing.immediate)
     startKoin {
         koin.loadModules(listOf(module {
             single { appCoroutineScope } bind AppCoroutineScope::class

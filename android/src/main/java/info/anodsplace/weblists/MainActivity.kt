@@ -7,13 +7,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.lifecycle.lifecycleScope
 import info.anodsplace.weblists.backup.CreateDocument
 import info.anodsplace.weblists.common.AndroidApp
 import info.anodsplace.weblists.common.DocumentRequest
-import info.anodsplace.weblists.common.theme.WebListTheme
 import info.anodsplace.weblists.ui.LocalBackPressedDispatcher
 import info.anodsplace.weblists.ui.MainScreen
 import kotlinx.coroutines.flow.collect
@@ -28,15 +26,23 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         openDocumentLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { destUri ->
-            viewModel.documentRequestResult.value = DocumentRequest.Result.Success(
-                uri = destUri.toString()
-            )
+            if (destUri == null) {
+                viewModel.documentRequestResult.value = DocumentRequest.Result.Error
+            } else {
+                viewModel.documentRequestResult.value = DocumentRequest.Result.Success(
+                    uri = destUri.toString()
+                )
+            }
         }
 
         createDocumentLauncher = registerForActivityResult(CreateDocument()) { destUri ->
-            viewModel.documentRequestResult.value = DocumentRequest.Result.Success(
-                uri = destUri.toString()
-            )
+            if (destUri == null) {
+                viewModel.documentRequestResult.value = DocumentRequest.Result.Error
+            } else {
+                viewModel.documentRequestResult.value = DocumentRequest.Result.Success(
+                    uri = destUri.toString()
+                )
+            }
         }
 
         lifecycleScope.launch {

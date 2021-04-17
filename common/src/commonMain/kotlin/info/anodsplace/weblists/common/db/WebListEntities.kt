@@ -21,6 +21,10 @@ data class WebSite(
     constructor(dbRow: DbWebSite) : this(
         dbRow.id, dbRow.url, dbRow.title
     )
+
+    companion object {
+        val empty =  WebSite(0L, "", "")
+    }
 }
 
 @Serializable

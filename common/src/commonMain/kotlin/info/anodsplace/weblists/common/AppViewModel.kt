@@ -13,25 +13,25 @@ import org.koin.core.component.inject
 import org.koin.core.logger.Logger
 
 sealed class ContentState {
-    object Loading: ContentState()
-    class Catalog(val sites: List<WebSite>): ContentState()
-    class SiteDefinition(val site: WebSite): ContentState()
-    class SiteSections(val site: WebSite, val sections: List<WebSection>): ContentState()
-    class Error(val message: String): ContentState()
+    object Loading : ContentState()
+    class Catalog(val sites: List<WebSite>) : ContentState()
+    class SiteDefinition(val site: WebSite) : ContentState()
+    class SiteSections(val site: WebSite, val sections: List<WebSection>) : ContentState()
+    class Error(val message: String) : ContentState()
 }
 
 sealed class DocumentRequest {
-    class Create(val name: String): DocumentRequest()
-    object Open: DocumentRequest()
+    class Create(val name: String) : DocumentRequest()
+    object Open : DocumentRequest()
 
     sealed class Result {
-        object Unknown: DocumentRequest.Result()
-        class Success(val uri: String): DocumentRequest.Result()
-        object Error: DocumentRequest.Result()
+        object Unknown : DocumentRequest.Result()
+        class Success(val uri: String) : DocumentRequest.Result()
+        object Error : DocumentRequest.Result()
     }
 }
 
-interface AppViewModel: KoinComponent {
+interface AppViewModel : KoinComponent {
     val log: Logger
     var lastError: String
     val prefs: AppPreferences
@@ -43,16 +43,17 @@ interface AppViewModel: KoinComponent {
     val documentRequestResult: MutableStateFlow<DocumentRequest.Result>
 
     fun loadSites()
-    fun loadSite(siteId: Long): Flow<ContentState>
-    fun updateDraft(site: WebSite, lists: List<WebList>, loadPreview: Boolean)
+    fun loadSite(siteId: Long): Flow<WebSite>
+    fun loadContent(siteId: Long): Flow<ContentState>
     fun loadYaml(siteId: Long): Flow<String>
-    fun export(siteId: Long, content: String): Flow<Int>
+    fun updateDraft(site: WebSite, lists: List<WebList>, loadPreview: Boolean)
+    fun export(title: String, content: String): Flow<Int>
     fun import(siteId: Long): Flow<Int>
 }
 
 class CommonAppViewModel(
     private val viewModelScope: CoroutineScope
-): AppViewModel {
+) : AppViewModel {
     override val prefs: AppPreferences by inject()
     override val yaml: Yaml by inject()
     override val log: Logger by inject()
@@ -63,6 +64,8 @@ class CommonAppViewModel(
     private val importer: Importer by inject()
 
     private var _draftSite: MutableStateFlow<WebSiteLists> = MutableStateFlow(WebSiteLists.empty)
+    private var docJob: Job? = null
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private var draftSite: Flow<String> = _draftSite.mapLatest {
         yaml.encodeToString(it)
@@ -72,6 +75,8 @@ class CommonAppViewModel(
     override val sites = MutableStateFlow<ContentState>(ContentState.Loading)
     override val docSource = MutableStateFlow<HtmlDocument?>(null)
     override var currentSections: ContentState.SiteSections? = null
+    override val documentRequest: MutableSharedFlow<DocumentRequest> = MutableSharedFlow()
+    override val documentRequestResult = MutableStateFlow<DocumentRequest.Result>(DocumentRequest.Result.Unknown)
 
     override fun loadSites() {
         viewModelScope.launch {
@@ -85,7 +90,12 @@ class CommonAppViewModel(
         }
     }
 
-    override fun loadSite(siteId: Long): Flow<ContentState> = flow {
+    override fun loadSite(siteId: Long): Flow<WebSite> = flow {
+        val webSite = db.loadSiteById(siteId)
+        emit(webSite)
+    }
+
+    override fun loadContent(siteId: Long): Flow<ContentState> = flow {
         currentSections = null
         emit(ContentState.Loading)
         try {
@@ -101,7 +111,6 @@ class CommonAppViewModel(
         }
     }
 
-    private var docJob: Job? = null
     override fun updateDraft(site: WebSite, lists: List<WebList>, loadPreview: Boolean) {
         _draftSite.value = WebSiteLists(site, lists)
         if (loadPreview && isValidUrl(site.url)) {
@@ -117,7 +126,7 @@ class CommonAppViewModel(
                     }
                     docSource.emit(doc)
                 } catch (e: Exception) {
-                    // Log.e("UpdateDraft", "Cannot load ${site.url}", e)
+                    log.error("Cannot load ${site.url}: ${e.message}")
                 }
             }
         }
@@ -143,49 +152,38 @@ class CommonAppViewModel(
         return draftSite
     }
 
-    override val documentRequest: MutableSharedFlow<DocumentRequest> = MutableSharedFlow()
-    override val documentRequestResult = MutableStateFlow<DocumentRequest.Result>(DocumentRequest.Result.Unknown)
-    override fun export(siteId: Long, content: String): Flow<Int> {
-        val exportState = MutableStateFlow(Code.resultNone)
+    override fun export(title: String, content: String): Flow<Int> = flow {
         documentRequestResult.value = DocumentRequest.Result.Unknown
-
-        viewModelScope.launch {
-            documentRequest.emit(DocumentRequest.Create("export-$siteId.yaml"))
-            documentRequestResult.collect { result ->
-               if (result is DocumentRequest.Result.Success) {
-                   exportState.value = exporter.export(result.uri, content)
-               } else {
-                   exportState.value = Code.errorUnexpected
-               }
-           }
-        }
-        return exportState
-    }
-
-    override fun import(siteId: Long): Flow<Int> {
-        val importState = MutableStateFlow(Code.resultNone)
-        documentRequestResult.value = DocumentRequest.Result.Unknown
-
-        viewModelScope.launch {
-            documentRequest.emit(DocumentRequest.Open)
-            documentRequestResult.collect { result ->
-                if (result is DocumentRequest.Result.Success) {
-                    val imported = importer.import(result.uri)
-                    if (imported.first == Code.resultDone) {
-                        try {
-                            db.upsert(siteId, imported.second.site, imported.second.lists)
-                            importState.value = Code.resultDone
-                        } catch (e: Exception) {
-                            importState.value = Code.resultDone
-                        }
-                    } else {
-                        importState.value = imported.first
-                    }
-                } else {
-                    importState.value = Code.errorUnexpected
-                }
+        documentRequest.emit(DocumentRequest.Create("weblist-$title.yaml"))
+        when (val result = documentRequestResult.first { it != DocumentRequest.Result.Unknown }) {
+            is DocumentRequest.Result.Success -> emit(exporter.export(result.uri, content))
+            DocumentRequest.Result.Error -> emit(Code.errorUnexpected)
+            DocumentRequest.Result.Unknown -> {
             }
         }
-        return importState
+    }
+
+    override fun import(siteId: Long): Flow<Int> = flow {
+        documentRequestResult.value = DocumentRequest.Result.Unknown
+        documentRequest.emit(DocumentRequest.Open)
+        when (val result = documentRequestResult.first { it != DocumentRequest.Result.Unknown }) {
+            is DocumentRequest.Result.Success -> {
+                val imported = importer.import(result.uri)
+                if (imported.first == Code.resultDone) {
+                    try {
+                        db.upsert(siteId, imported.second.site, imported.second.lists)
+                        emit(Code.resultDone)
+                    } catch (e: Exception) {
+                        log.error("${e.message}")
+                        emit(Code.resultDone)
+                    }
+                } else {
+                    emit(imported.first)
+                }
+            }
+            DocumentRequest.Result.Error -> emit(Code.errorUnexpected)
+            DocumentRequest.Result.Unknown -> {
+            }
+        }
     }
 }
