@@ -12,6 +12,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.lifecycle.lifecycleScope
 import info.anodsplace.weblists.backup.CreateDocument
 import info.anodsplace.weblists.common.AndroidApp
+import info.anodsplace.weblists.common.DocumentRequest
 import info.anodsplace.weblists.common.theme.WebListTheme
 import info.anodsplace.weblists.ui.LocalBackPressedDispatcher
 import info.anodsplace.weblists.ui.MainScreen
@@ -27,22 +28,23 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         openDocumentLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { destUri ->
-            viewModel.importFrom(destUri.toString())
+            viewModel.documentRequestResult.value = DocumentRequest.Result.Success(
+                uri = destUri.toString()
+            )
         }
 
         createDocumentLauncher = registerForActivityResult(CreateDocument()) { destUri ->
-            viewModel.onExportUri(true, destUri.toString())
+            viewModel.documentRequestResult.value = DocumentRequest.Result.Success(
+                uri = destUri.toString()
+            )
         }
 
         lifecycleScope.launch {
-            viewModel.createDocumentRequest.collect { title ->
-                createDocumentLauncher.launch(CreateDocument.Args(Uri.EMPTY, "text/yaml", title))
-            }
-        }
-
-        lifecycleScope.launch {
-            viewModel.openDocument.collect { _ ->
-                openDocumentLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
+            viewModel.documentRequest.collect { request ->
+                when (request) {
+                    is DocumentRequest.Create -> createDocumentLauncher.launch(CreateDocument.Args(Uri.EMPTY, "text/yaml", request.name))
+                    is DocumentRequest.Open -> openDocumentLauncher.launch(arrayOf("application/yaml", "text/plain", "*/*"))
+                }
             }
         }
 

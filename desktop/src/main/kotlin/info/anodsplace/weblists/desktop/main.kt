@@ -3,17 +3,14 @@ package info.anodsplace.weblists.desktop
 import androidx.compose.desktop.Window
 import androidx.compose.ui.unit.IntSize
 import info.anodsplace.weblists.common.*
-import info.anodsplace.weblists.common.theme.WebListTheme
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.core.context.startKoin
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import java.awt.image.BufferedImage
-import java.io.File
 import javax.imageio.ImageIO
 import javax.swing.JFileChooser
-import javax.swing.filechooser.FileNameExtensionFilter
 import javax.swing.filechooser.FileSystemView
 
 fun loadWindowIcon(): BufferedImage {
@@ -43,21 +40,17 @@ fun main() {
     val viewModel = CommonAppViewModel(appCoroutineScope)
 
     appCoroutineScope.launch {
-        viewModel.createDocumentRequest.collect { destName ->
+        viewModel.documentRequest.collect { request ->
             val fileChooser = JFileChooser(FileSystemView.getFileSystemView().homeDirectory)
-            fileChooser.selectedFile = File(destName)
-            fileChooser.fileFilter =
-                FileNameExtensionFilter("WebList definition (yaml, yml)", "yaml", "yml")
-            val returnValue = fileChooser.showSaveDialog(null)
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                val selectedFile = fileChooser.selectedFile
-                val destFile = if (selectedFile.isDirectory) {
-                    File(fileChooser.selectedFile, destName)
-                } else selectedFile
-                println("You chose to export to: " + destFile.absolutePath)
-                viewModel.onExportUri(true, destFile.absolutePath)
+            val file = when(request) {
+                is DocumentRequest.Create -> fileChooser.showSaveDialog(request.name)
+                DocumentRequest.Open -> fileChooser.showOpenDialog()
+                else -> null
+            }
+            if (file == null) {
+                viewModel.documentRequestResult.value = DocumentRequest.Result.Error
             } else {
-                viewModel.onExportUri(false, "")
+                viewModel.documentRequestResult.value = DocumentRequest.Result.Success(file.absolutePath)
             }
         }
     }

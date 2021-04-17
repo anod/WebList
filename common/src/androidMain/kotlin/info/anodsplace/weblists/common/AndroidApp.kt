@@ -10,6 +10,8 @@ import com.charleskorn.kaml.YamlConfiguration
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
 import info.anodsplace.weblists.common.db.AppDatabase
+import info.anodsplace.weblists.common.export.Exporter
+import info.anodsplace.weblists.common.export.Importer
 import info.anodsplace.weblists.common.theme.WebListTheme
 import info.anodsplace.weblists.db.WebListsDb
 import info.anodsplace.weblists.db.WebListsDb.Companion.Schema
@@ -48,9 +50,9 @@ actual fun createAppModule(): Module = module {
     single { Yaml(configuration = YamlConfiguration(
         encodeDefaults = false,
         polymorphismStyle = PolymorphismStyle.Property
-    )
-    ) }
-    single { AndroidExporter(get(), get()) }
+    )) }
+    single<Exporter> { AndroidExporter(get(), get()) }
+    single<Importer> { AndroidImporter(get(), get(), get()) }
 }
 
 @Composable

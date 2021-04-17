@@ -17,3 +17,6 @@ SELECT * FROM DbWebList WHERE siteId IN (:siteId);
 
 lastInsertId:
 SELECT last_insert_rowid();
+
+delete:
+DELETE FROM DbWebList WHERE siteId = :siteId;

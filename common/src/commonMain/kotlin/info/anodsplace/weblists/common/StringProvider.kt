@@ -2,6 +2,7 @@ package info.anodsplace.weblists.common
 
 interface StringProvider {
 
+    val edit: String
     val appName: String
     val search: String
     val previousResult: String
@@ -13,7 +14,7 @@ interface StringProvider {
     val addNew: String
     val noListsFound: String
 
-    class Default() : StringProvider {
+    class Default : StringProvider {
         override val appName = "Web lists"
         override val search = "Search"
         override val previousResult = "Previous result"
@@ -24,5 +25,6 @@ interface StringProvider {
         override val backToCatalog = "Back"
         override val addNew = "Add new"
         override val noListsFound = "No lists found"
+        override val edit = "Edit"
     }
 }

@@ -9,4 +9,5 @@
     <string name="no_lists_found">No lists were found</string>
     <string name="import_button">Import</string>
     <string name="export">Export</string>
+    <string name="edit">Edit</string>
 </resources>

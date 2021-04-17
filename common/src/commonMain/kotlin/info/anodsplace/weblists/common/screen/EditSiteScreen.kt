@@ -11,6 +11,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.CloudUpload
+import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,55 +22,70 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import info.anodsplace.weblists.common.AppViewModel
 import info.anodsplace.weblists.common.StringProvider
+import info.anodsplace.weblists.common.db.WebSiteLists
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromString
 
 @Composable
 fun EditSiteScreen(siteId: Long, viewModel: AppViewModel, strings: StringProvider, navigate: (Screen) -> Unit) {
     val coroutineScope = rememberCoroutineScope()
-    val editSiteState by remember { viewModel.loadDraft(siteId) }.collectAsState()
+    val yamlValue by remember { viewModel.loadYaml(siteId) }.collectAsState(initial = "")
     //val document by viewModel.docSource.collectAsState()
-    var backupMessage by remember { mutableStateOf<String?>(null) }
-    var yamlValue by remember { mutableStateOf(viewModel.yaml.encodeToString(editSiteState)) }
+    var snackBarMessage by remember { mutableStateOf<String?>(null) }
     Scaffold(
         topBar = {
             EditTopBar(
                 siteId = siteId,
-                title = editSiteState?.site?.title ?: "",
+                title = strings.edit,
                 strings = strings
             ) {
                 when (it) {
                     is Screen.Export -> {
                         coroutineScope.launch {
                             viewModel.export(it.siteId, yamlValue).collect { code ->
-                                backupMessage = "Finished with code $code"
+                                snackBarMessage = "Finished with code $code"
                             }
                         }
-                        ///navigate(Screen.Export(siteId, yamlValue))
                     }
                     is Screen.Import -> {
-
+                        coroutineScope.launch {
+                            viewModel.export(it.siteId, yamlValue).collect { code ->
+                                snackBarMessage = "Finished with code $code"
+                            }
+                        }
                     }
                     else -> navigate(it)
                 }
             }
         },
         snackbarHost = {
-            if (backupMessage != null) {
+            if (snackBarMessage != null) {
                 coroutineScope.launch {
-                    it.showSnackbar(message = backupMessage!!)
+                    it.showSnackbar(message = snackBarMessage!!)
+                    snackBarMessage = null
                 }
             }
         }
     ) {
-        if (editSiteState == null) {
+        if (yamlValue.isEmpty()) {
             LoadingCatalog()
         } else {
             EditSiteLists(
                 yamlValue = yamlValue
             ) { newYaml ->
-                    yamlValue = newYaml
+                coroutineScope.launch {
+                    try {
+                        val newWebLists: WebSiteLists = withContext(Dispatchers.Default) {
+                            viewModel.yaml.decodeFromString(newYaml)
+                        }
+                        viewModel.updateDraft(newWebLists.site, newWebLists.lists, false)
+                    } catch (e: Exception) {
+                        snackBarMessage = "Parse error: ${e.message}"
+                    }
+                }
             }
         }
     }
@@ -80,20 +97,17 @@ fun EditSiteLists(
     onChange: (newYaml: String) -> Unit = { },
 ) {
     MainSurface {
-        Column(
+        OutlinedTextField(
             modifier = Modifier
+                .fillMaxWidth()
                 .fillMaxHeight()
-                .fillMaxWidth(),
-        ) {
-            OutlinedTextField(
-                modifier = Modifier.padding(8.dp),
-                value = yamlValue,
-                onValueChange = { newText -> onChange(newText) },
-                readOnly = true,
-                textStyle = MaterialTheme.typography.body2,
-                visualTransformation = Highlight
-            )
-        }
+                .padding(8.dp),
+            value = yamlValue,
+            onValueChange = { newText -> onChange(newText) },
+            readOnly = true,
+            textStyle = MaterialTheme.typography.body2,
+            visualTransformation = Highlight
+        )
     }
 }
 
@@ -120,10 +134,10 @@ fun EditTopBar(siteId: Long, title: String, strings: StringProvider, navigate: (
         backgroundColor = MaterialTheme.colors.primary,
         actions = {
             IconButton(onClick = { navigate(Screen.Export(siteId)) }) {
-                Icon(imageVector = Icons.Outlined.CloudUpload, contentDescription = strings.export)
+                Icon(imageVector = Icons.Outlined.FolderOpen, contentDescription = strings.export)
             }
             IconButton(onClick = { navigate(Screen.Import(siteId))}) {
-                Icon(imageVector = Icons.Outlined.CloudDownload, contentDescription = strings.import)
+                Icon(imageVector = Icons.Outlined.Download, contentDescription = strings.import)
             }
         }
     )

@@ -4,14 +4,10 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.charleskorn.kaml.Yaml
-import info.anodsplace.weblists.common.AppPreferences
-import info.anodsplace.weblists.common.AppViewModel
-import info.anodsplace.weblists.common.CommonAppViewModel
-import info.anodsplace.weblists.common.ContentState
+import info.anodsplace.weblists.common.*
 import info.anodsplace.weblists.common.db.WebList
 import info.anodsplace.weblists.common.db.WebSite
 import info.anodsplace.weblists.common.db.WebSiteLists
-import info.anodsplace.weblists.common.HtmlDocument
 import kotlinx.coroutines.flow.*
 import org.koin.core.logger.Logger
 
@@ -42,22 +38,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application), A
         common.updateDraft(site, lists, loadPreview)
     }
 
-    override fun loadDraft(siteId: Long): MutableStateFlow<WebSiteLists?> {
-        return common.loadDraft(siteId)
+    override fun loadYaml(siteId: Long): Flow<String> {
+        return common.loadYaml(siteId)
     }
 
-
-    override val createDocumentRequest: MutableSharedFlow<String>
-        get() = common.createDocumentRequest
+    override val documentRequest: MutableSharedFlow<DocumentRequest>
+        get() = common.documentRequest
+    override val documentRequestResult: MutableStateFlow<DocumentRequest.Result>
+        get() = common.documentRequestResult
 
     override fun export(siteId: Long, content: String): Flow<Int> = common.export(siteId, content)
-    override fun onExportUri(isSuccess: Boolean, destUri: String) {
-        common.onExportUri(isSuccess, destUri)
-    }
-
-    val openDocument = MutableSharedFlow<Boolean>()
-    private val onImportUri = MutableSharedFlow<String?>()
-    fun importFrom(destUri: String?) {
-        onImportUri.tryEmit(destUri)
-    }
+    override fun import(siteId: Long): Flow<Int> = common.import(siteId)
 }

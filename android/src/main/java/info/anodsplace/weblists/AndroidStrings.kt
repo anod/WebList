@@ -4,6 +4,8 @@ import android.content.Context
 import info.anodsplace.weblists.common.StringProvider
 
 class AndroidStrings(private val context: Context) : StringProvider {
+    override val edit: String
+        get() = context.getString(R.string.edit)
     override val appName: String
         get() = context.getString(R.string.app_name)
     override val search: String

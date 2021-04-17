@@ -8,6 +8,7 @@ import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import info.anodsplace.weblists.common.db.AppDatabase
 import info.anodsplace.weblists.common.export.Exporter
+import info.anodsplace.weblists.common.export.Importer
 import info.anodsplace.weblists.common.theme.WebListTheme
 import info.anodsplace.weblists.db.WebListsDb
 import info.anodsplace.weblists.db.WebListsDb.Companion.Schema
@@ -61,6 +62,7 @@ actual fun createAppModule(): Module = module {
     )
     ) }
     single<Exporter> { DesktopExporter(get()) }
+    single<Importer> { DesktopImporter(get(), get())}
 }
 
 @Composable

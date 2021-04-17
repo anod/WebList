@@ -83,6 +83,14 @@ data class WebSiteLists(
 //    )
     val lists: List<WebList>
 ) {
+
+    constructor(siteId: Long) :
+            this(WebSite(siteId, "", ""), emptyList())
+
+    companion object {
+        val empty =  WebSiteLists(0L)
+    }
+
     private val listsOrdered: List<WebList>
         get() = lists.sortedWith { l, r ->
              if (l.order == r.order) {

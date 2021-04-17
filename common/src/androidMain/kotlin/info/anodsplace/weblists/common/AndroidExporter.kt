@@ -2,6 +2,7 @@ package info.anodsplace.weblists.common
 
 import android.content.Context
 import android.net.Uri
+import info.anodsplace.weblists.common.export.Code
 import info.anodsplace.weblists.common.export.Exporter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,11 +17,11 @@ class AndroidExporter(private val context: Context, logger: Logger): Exporter(lo
         val uri = Uri.parse(destUri)
         val outputStream: OutputStream?
         return@withContext try {
-            outputStream = context.contentResolver.openOutputStream(uri) ?: return@withContext ERROR_UNEXPECTED
+            outputStream = context.contentResolver.openOutputStream(uri) ?: return@withContext Code.errorUnexpected
             writeContent(OutputStreamWriter(outputStream), content)
         } catch (e: FileNotFoundException) {
             logger.error("export error: ${e.message}")
-            ERROR_FILE_READ
+            Code.errorRead
         }
     }
 }
