@@ -5,32 +5,24 @@ plugins {
 }
 
 android {
-    compileSdkVersion(30)
+    compileSdk = 30
     buildToolsVersion = "30.0.3"
 
     defaultConfig {
         applicationId = "info.anodsplace.weblists"
-        minSdkVersion(25)
-        targetSdkVersion(30)
+        minSdk = 25
+        targetSdk = 30
         versionCode = 1
         versionName = "1.0"
     }
 
-//    buildTypes {
-//        release {
-//            isMinifyEnabled = false
-//            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-//        }
-//    }
-
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
-        useIR = true
+        jvmTarget = "11"
     }
 
     buildFeatures {
@@ -53,11 +45,11 @@ android {
 dependencies {
     implementation(project(":common"))
 
-    implementation("androidx.fragment:fragment-ktx:1.3.2")
-    implementation("androidx.activity:activity-ktx:1.2.2")
+    implementation("androidx.fragment:fragment-ktx:1.3.4")
+    implementation("androidx.activity:activity-ktx:1.2.3")
     implementation("com.google.android.material:material:1.3.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
-    implementation("androidx.activity:activity-compose:1.3.0-alpha06")
-    implementation("androidx.navigation:navigation-compose:1.0.0-alpha10")
-    implementation("androidx.compose.ui:ui-tooling:1.0.0-beta04")
+    implementation("androidx.activity:activity-compose:1.3.0-alpha08")
+    implementation("androidx.navigation:navigation-compose:2.4.0-alpha01")
+    implementation("androidx.compose.ui:ui-tooling:1.0.0-beta06")
 }

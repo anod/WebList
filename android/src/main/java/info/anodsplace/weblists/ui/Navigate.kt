@@ -5,7 +5,6 @@ import androidx.navigation.*
 import androidx.navigation.compose.NamedNavArgument
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navArgument
-import androidx.navigation.compose.navigate
 import info.anodsplace.weblists.common.screen.Screen
 import info.anodsplace.weblists.common.screen.ScreenArg
 
@@ -29,7 +28,7 @@ fun NavGraphBuilder.composable(screen: Screen, content: @Composable (NavBackStac
 fun NavController.navigate(screen: Screen) {
     navigate(screen.route) {
         if (screen.initial) {
-            popUpTo = graph.startDestination
+            popUpTo(graph.startDestinationId)
             launchSingleTop = true
         }
     }
