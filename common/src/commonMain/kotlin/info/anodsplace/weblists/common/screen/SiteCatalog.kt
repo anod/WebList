@@ -77,6 +77,7 @@ fun SiteButton(title: String, onClick: () -> Unit) {
         Icon(
             imageVector = Icons.Filled.Star,
             contentDescription = title,
+            tint = MaterialTheme.colors.onSurface,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(8.dp)

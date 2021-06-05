@@ -243,7 +243,7 @@ fun ListPreview() {
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
 fun ListLightPreview() {
-    WebListTheme {
+    WebListTheme(darkTheme = false) {
         CatalogContent(
             listOf(
                 WebSite(0, "http://sample1", "Sample 1"),

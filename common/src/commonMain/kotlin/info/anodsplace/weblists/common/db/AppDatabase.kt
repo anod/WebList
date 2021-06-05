@@ -20,7 +20,7 @@ class AppDatabase(private val db: WebListsDb) {
     suspend fun preload() = withContext(Dispatchers.Default) {
         val sites = loadSites()
         if (sites.isNotEmpty()) {
-            db.webSiteQueries.deleteSites()
+            return@withContext
         }
         upsert(
             WebSite(
