@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.*
@@ -58,8 +59,8 @@ fun MainScreen(viewModel: AppViewModel, strings: StringProvider) {
         navigation(startDestination = Screen.Site().template, route = "sites") {
             composable(Screen.Site()) { backStackEntry ->
                 val siteId = backStackEntry.arguments?.getLong("siteId") ?: 0L
-                val siteState = remember { viewModel.loadContent(siteId) }.collectAsState(initial = ContentState.Loading)
-                when (val siteValue = siteState.value) {
+                val siteState by remember { viewModel.loadContent(siteId) }.collectAsState(initial = ContentState.Loading)
+                when (val siteValue = siteState) {
                     is ContentState.Error -> {
                         viewModel.prefs.lastSiteId = -1
                         viewModel.lastError = siteValue.message
@@ -228,6 +229,20 @@ fun SearchPreview() {
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun ListPreview() {
+    WebListTheme {
+        CatalogContent(
+            listOf(
+                WebSite(0, "http://sample1", "Sample 1"),
+                WebSite(1, "http://sample2", "Sample 2")
+            ),
+            strings = StringProvider.Default()
+        ) { }
+    }
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Composable
+fun ListLightPreview() {
     WebListTheme {
         CatalogContent(
             listOf(
