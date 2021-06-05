@@ -28,19 +28,7 @@ android {
     buildFeatures {
         compose = true
     }
-
-//    composeOptions {
-//        kotlinCompilerExtensionVersion = "1.0.0-beta04"
-////        kotlinCompilerVersion = "1.4.31"
-//    }
 }
-
-//tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-//    kotlinOptions {
-//        jvmTarget = "1.8"
-//        freeCompilerArgs += listOf("-P", "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true")
-//    }
-//}
 
 dependencies {
     implementation(project(":common"))
@@ -49,7 +37,7 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.2.3")
     implementation("com.google.android.material:material:1.3.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
-    implementation("androidx.activity:activity-compose:1.3.0-alpha08")
-    implementation("androidx.navigation:navigation-compose:2.4.0-alpha01")
-    implementation("androidx.compose.ui:ui-tooling:1.0.0-beta06")
+    implementation("androidx.activity:activity-compose:1.3.0-beta01")
+    implementation("androidx.navigation:navigation-compose:2.4.0-alpha02")
+    implementation("androidx.compose.ui:ui-tooling:1.0.0-beta08")
 }
