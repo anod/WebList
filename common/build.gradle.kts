@@ -64,7 +64,7 @@ kotlin {
         named("androidMain") {
             dependencies {
                 api("androidx.appcompat:appcompat:1.3.0")
-                api("androidx.core:core-ktx:1.5.0")
+                api("androidx.core:core-ktx:1.6.0")
                 api("com.squareup.okhttp3:okhttp:4.9.0")
                 api("io.ktor:ktor-client-okhttp:1.5.4")
 

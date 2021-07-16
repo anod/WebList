@@ -96,7 +96,6 @@ fun EmptyPreview() {
     }
 }
 
-
 @Preview(
     showBackground = true,
     backgroundColor = android.graphics.Color.MAGENTA.toLong(),
@@ -224,7 +223,6 @@ fun SearchPreview() {
         ) { }
     }
 }
-
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable

@@ -1,5 +1,5 @@
 buildscript {
-    val composeVersion = "0.4.0"
+    val composeVersion = "0.5.0-build245"
 
     repositories {
         mavenLocal()
@@ -10,7 +10,7 @@ buildscript {
 
     dependencies {
         classpath("org.jetbrains.compose:compose-gradle-plugin:$composeVersion")
-        classpath("com.android.tools.build:gradle:7.0.0-beta03")
+        classpath("com.android.tools.build:gradle:7.0.0-beta05")
         classpath(kotlin("gradle-plugin", version = "1.5.10"))
         classpath("org.jetbrains.kotlin:kotlin-serialization:1.5.10")
         classpath("com.squareup.sqldelight:gradle-plugin:1.5.0")
